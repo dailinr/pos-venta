@@ -1,0 +1,73 @@
+### Archivos y Directorios Generados por Gradle/Maven
+
+# Directorios de Construcción y Salida
+/target/             # Para Maven
+/build/              # Para Gradle
+!**/src/main/**/target/ # Ignorar /target/ pero no si está dentro de /src/main
+
+# Directorios de Dependencias
+/bin/
+/out/
+.gradle/
+.idea/
+.settings/
+
+# Archivos de Registro
+*.log
+log/
+logs/
+/temp/
+
+### Específicos de Java
+
+# Clases compiladas
+*.class
+
+# Empaquetado de Java
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+
+# Archivos de configuración y pruebas
+/test-output/
+
+### Específicos de IDEs (IntelliJ IDEA, Eclipse, VS Code)
+
+# IntelliJ IDEA
+*.iml
+*.iws
+*.ipr
+.idea/
+/target/
+/out/
+/classes/
+
+# Eclipse
+.classpath
+.project
+.settings/
+/bin/
+
+# VS Code
+.vscode/
+
+### Archivos del Sistema Operativo
+
+# Mac
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+### Spring Boot
+
+# Archivos de configuración de IDE específicos de Spring Boot
+.mvn/wrapper/maven-wrapper.jar
+!/.mvn/wrapper/maven-wrapper.jar # Incluye el archivo wrapper de Maven
+
+# Archivos de depuración y desarrollo
+hs_err_pid*
+derby.log
