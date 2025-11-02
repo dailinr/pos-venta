@@ -8,6 +8,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Product {
@@ -28,7 +30,9 @@ public class Product {
 
     private boolean available;
 
-    private int categoryId;
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     public int getId() {
         return id;
@@ -56,10 +60,6 @@ public class Product {
 
     public boolean isAvailable() {
         return available;
-    }
-
-    public int getCategoryId() {
-        return categoryId;
     }
 
     public void setId(int id) {
@@ -90,8 +90,12 @@ public class Product {
         this.available = available;
     }
 
-    public void setCategoryId(int categoryId) {
-        this.categoryId = categoryId;
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 
     

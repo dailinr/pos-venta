@@ -4,6 +4,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Dish {
@@ -19,7 +21,17 @@ public class Dish {
 
     private String name;
 
-    private int categoryId;
+    @ManyToOne
+    @JoinColumn(name = "category_id") // Mapea a la columna FK 'category_id' en la tabla 'Dish'
+    private Category category; 
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
 
     public int getId() {
         return id;
@@ -41,10 +53,6 @@ public class Dish {
         return name;
     }
 
-    public int getCategoryId() {
-        return categoryId;
-    }
-
     public void setId(int id) {
         this.id = id;
     }
@@ -63,9 +71,5 @@ public class Dish {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public void setCategoryId(int categoryId) {
-        this.categoryId = categoryId;
     }
 }
