@@ -3,12 +3,14 @@ package com.dailin.api_posventa.service.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.dailin.api_posventa.exception.ObjectNotFoundException;
 import com.dailin.api_posventa.persistence.entity.Product;
 import com.dailin.api_posventa.persistence.repository.ProductCrudRepository;
 import com.dailin.api_posventa.service.ProductService;
 
+@Service
 public class ProductServiceImpl implements ProductService {
 
     @Autowired

@@ -3,12 +3,14 @@ package com.dailin.api_posventa.service.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.dailin.api_posventa.exception.ObjectNotFoundException;
 import com.dailin.api_posventa.persistence.entity.Dish;
 import com.dailin.api_posventa.persistence.repository.DishCrudRepository;
 import com.dailin.api_posventa.service.DishService;
 
+@Service
 public class DishServiceImpl implements DishService {
 
     @Autowired

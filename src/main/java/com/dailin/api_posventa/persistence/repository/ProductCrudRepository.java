@@ -7,4 +7,5 @@ import com.dailin.api_posventa.persistence.entity.Product;
 public interface ProductCrudRepository extends JpaRepository<Product, Long> {
 
     // hasta el momento creo que ya todos los metodos los trae CrudRepository por defecto
+
 }
