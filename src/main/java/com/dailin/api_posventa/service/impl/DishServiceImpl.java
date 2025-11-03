@@ -4,23 +4,27 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.dailin.api_posventa.exception.ObjectNotFoundException;
 import com.dailin.api_posventa.persistence.entity.Dish;
 import com.dailin.api_posventa.persistence.repository.DishCrudRepository;
 import com.dailin.api_posventa.service.DishService;
 
+@Transactional
 @Service
 public class DishServiceImpl implements DishService {
 
     @Autowired
     private DishCrudRepository dishCrudRepository;
 
+    @Transactional(readOnly = true)
     @Override
     public List<Dish> findAll() {
         return dishCrudRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Dish findOneById(Long id) {
         return dishCrudRepository.findById(id)

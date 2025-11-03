@@ -4,12 +4,14 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.dailin.api_posventa.exception.ObjectNotFoundException;
 import com.dailin.api_posventa.persistence.entity.Product;
 import com.dailin.api_posventa.persistence.repository.ProductCrudRepository;
 import com.dailin.api_posventa.service.ProductService;
 
+@Transactional
 @Service
 public class ProductServiceImpl implements ProductService {
 
@@ -32,11 +34,13 @@ public class ProductServiceImpl implements ProductService {
         throw new ObjectNotFoundException("[product: " +Long.toString(id)+ "]");
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Product> findAll() {
         return productCrudRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Product findOneById(Long id) {
         return productCrudRepository.findById(id)
