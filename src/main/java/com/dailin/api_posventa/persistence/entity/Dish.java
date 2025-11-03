@@ -27,7 +27,7 @@ public class Dish {
     @Column(nullable = false)
     private String name;
 
-    @Column(name = "category_id", nullable = false)
+    @Column(name = "category_id")
     @JsonProperty(value = "category_id")
     private Long categoryId;
 

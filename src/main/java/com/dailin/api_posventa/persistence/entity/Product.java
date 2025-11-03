@@ -37,7 +37,7 @@ public class Product {
 
     private boolean available;
 
-    @Column(name = "category_id", nullable = false)
+    @Column(name = "category_id")
     private Long categoryId;
 
     @ManyToOne
