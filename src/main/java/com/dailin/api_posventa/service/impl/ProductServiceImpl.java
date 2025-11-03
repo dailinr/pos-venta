@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.dailin.api_posventa.exception.ObjectNotFoundException;
 import com.dailin.api_posventa.persistence.entity.Product;
 import com.dailin.api_posventa.persistence.repository.ProductCrudRepository;
 import com.dailin.api_posventa.service.ProductService;
@@ -21,9 +22,12 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void deleteOneById(Long id) {
         
-        // mientras tanto
-        Product product = this.findOneById(id);
-        productCrudRepository.delete(product);
+        if(productCrudRepository.existsById(id)){
+            productCrudRepository.deleteById(id);
+            return;
+        }
+
+        throw new ObjectNotFoundException("[product: " +Long.toString(id)+ "]");
     }
 
     @Override
@@ -34,7 +38,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product findOneById(Long id) {
         return productCrudRepository.findById(id)
-            .orElseThrow();
+            .orElseThrow(() -> new ObjectNotFoundException("[product: " +Long.toString(id)+ "]"));
     }
 
     @Override

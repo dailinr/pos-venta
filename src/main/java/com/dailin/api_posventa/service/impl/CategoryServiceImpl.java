@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.dailin.api_posventa.exception.ObjectNotFoundException;
 import com.dailin.api_posventa.persistence.entity.Category;
 import com.dailin.api_posventa.persistence.repository.CategoryCrudRepository;
 import com.dailin.api_posventa.service.CategoryService;
@@ -15,14 +16,13 @@ public class CategoryServiceImpl implements CategoryService{
 
     @Override
     public List<Category> findAll() {
-
         return categoryCrudRepository.findAll();
     }
 
     @Override
     public Category findOneById(Long id) {
         return categoryCrudRepository.findById(id)
-            .orElseThrow();
+            .orElseThrow(() -> new ObjectNotFoundException("[category: " +Long.toString(id)+ "]"));
     }
 
     @Override
@@ -39,15 +39,18 @@ public class CategoryServiceImpl implements CategoryService{
 
     @Override
     public Category createOne(Category category) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createOne'");
+        return categoryCrudRepository.save(category);
     }
 
     @Override
     public void deleteOneById(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteOneById'");
-    }
+        
+        // mientras tanto
+        if(categoryCrudRepository.existsById(id)){
+            categoryCrudRepository.deleteById(id);
+            return;
+        }
 
-    
+        throw new ObjectNotFoundException("[category: " +Long.toString(id)+ "]");
+    }
 }
