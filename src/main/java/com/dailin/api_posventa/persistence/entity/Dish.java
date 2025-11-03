@@ -1,5 +1,8 @@
 package com.dailin.api_posventa.persistence.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,16 +16,23 @@ public class Dish {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(nullable = false)
     private boolean available;
 
+    @Column(nullable = false)
     private double price;
 
     private String description;
 
+    @Column(nullable = false)
     private String name;
 
+    @Column(name = "category_id", nullable = false)
+    @JsonProperty(value = "category_id")
+    private Long categoryId;
+
     @ManyToOne
-    @JoinColumn(name = "category_id") // Mapea a la columna FK 'category_id' en la tabla 'Dish'
+    @JoinColumn(name = "category_id", insertable = false, updatable = false) // Mapea a la columna FK 'category_id' en la tabla 'Dish'
     private Category category; 
 
     public Category getCategory() {

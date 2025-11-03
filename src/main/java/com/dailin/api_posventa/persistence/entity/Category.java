@@ -4,10 +4,11 @@ import java.util.List;
 
 import com.dailin.api_posventa.utils.CategoryType;
 
-import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -19,19 +20,22 @@ public class Category {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private CategoryType type;
 
+    @Column(nullable = false)
     private boolean available;
 
     // Una Categoría clasifica a muchos Productos
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL) // 'category' es el nombre del atributo en la clase Product
+    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER) // 'category' es el nombre del atributo en la clase Product
     private List<Product> products;
 
     // Una Categoría clasifica a muchos Platos
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL) // 'category' es el nombre del atributo en la clase Dish
+    @OneToMany(mappedBy = "category", fetch = FetchType.EAGER) // 'category' es el nombre del atributo en la clase Dish
     private List<Dish> dishes;
 
     public int getId() {
