@@ -2,17 +2,18 @@ package com.dailin.api_posventa.service;
 
 import java.util.List;
 
-import com.dailin.api_posventa.persistence.entity.Dish;
+import com.dailin.api_posventa.dto.request.SaveDish;
+import com.dailin.api_posventa.dto.response.GetDish;
 
 public interface DishService {
     
-    List<Dish> findAll();
+    List<GetDish> findAll();
 
-    Dish findOneById(Long id);
+    GetDish findOneById(Long id);
 
-    Dish updtedOneById(Long id, Dish dish);
+    GetDish updtedOneById(Long id, SaveDish saveDto);
 
-    Dish createOne(Dish dish);
+    GetDish createOne(SaveDish saveDto);
 
     void deleteOneById(Long id);
 }

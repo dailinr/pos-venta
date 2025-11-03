@@ -2,17 +2,18 @@ package com.dailin.api_posventa.service;
 
 import java.util.List;
 
-import com.dailin.api_posventa.persistence.entity.Product;
+import com.dailin.api_posventa.dto.request.SaveProduct;
+import com.dailin.api_posventa.dto.response.GetProduct;
 
 public interface ProductService {
 
-    List<Product> findAll();
+    List<GetProduct> findAll();
 
-    Product findOneById(Long id);
+    GetProduct findOneById(Long id);
 
-    Product updtedOneById(Long id, Product product);
+    GetProduct updtedOneById(Long id, SaveProduct saveDto);
 
-    Product createOne(Product product);
+    GetProduct createOne(SaveProduct saveDto);
 
     void deleteOneById(Long id);
 

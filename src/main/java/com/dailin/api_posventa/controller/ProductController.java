@@ -14,8 +14,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dailin.api_posventa.dto.request.SaveProduct;
+import com.dailin.api_posventa.dto.response.GetProduct;
 import com.dailin.api_posventa.exception.ObjectNotFoundException;
-import com.dailin.api_posventa.persistence.entity.Product;
 import com.dailin.api_posventa.service.ProductService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,40 +29,41 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping
-    public List<Product> findAll() {
-        return productService.findAll();
+    public ResponseEntity<List<GetProduct>> findAll() {
+        return ResponseEntity.ok(productService.findAll());
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<Product> findOneById(@PathVariable Long id) {
+    public ResponseEntity<GetProduct> findOneById(@PathVariable Long id) {
 
         try {
             return ResponseEntity.ok(productService.findOneById(id));
-        } catch (ObjectNotFoundException e) {
+        } 
+        catch (ObjectNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
     @PostMapping
-    public ResponseEntity<Product> createOne(
-        @RequestBody Product product, HttpServletRequest request
+    public ResponseEntity<GetProduct> createOne(
+        @RequestBody SaveProduct saveDto, HttpServletRequest request
     ){
-        Product productCreated = productService.createOne(product);
+        GetProduct productCreated = productService.createOne(saveDto);
         String baseUrl = request.getRequestURL().toString();
 
         // localizacion para el producto recien creado 
-        URI newLocation = URI.create(baseUrl + "/" + productCreated.getId());
+        URI newLocation = URI.create(baseUrl + "/" + productCreated.id());
 
         return ResponseEntity.created(newLocation).body(productCreated);
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<Product> updatedOneById(
-        @PathVariable Long id, @RequestBody Product product
+    public ResponseEntity<GetProduct> updatedOneById(
+        @PathVariable Long id, @RequestBody SaveProduct saveDto
     ){
 
         try {
-            Product productUpdated = productService.updtedOneById(id, product);
+            GetProduct productUpdated = productService.updtedOneById(id, saveDto);
             return ResponseEntity.ok(productUpdated);
         } 
         catch (ObjectNotFoundException e) {

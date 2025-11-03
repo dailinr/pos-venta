@@ -6,7 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dailin.api_posventa.dto.request.SaveDish;
+import com.dailin.api_posventa.dto.response.GetDish;
 import com.dailin.api_posventa.exception.ObjectNotFoundException;
+import com.dailin.api_posventa.mapper.DishMapper;
 import com.dailin.api_posventa.persistence.entity.Dish;
 import com.dailin.api_posventa.persistence.repository.DishCrudRepository;
 import com.dailin.api_posventa.service.DishService;
@@ -20,34 +23,39 @@ public class DishServiceImpl implements DishService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<Dish> findAll() {
-        return dishCrudRepository.findAll();
+    public List<GetDish> findAll() {
+        List<Dish> entities = dishCrudRepository.findAll(); // obtenemos las entidades
+        return DishMapper.toGetDtoList(entities); 
     }
 
     @Transactional(readOnly = true)
     @Override
-    public Dish findOneById(Long id) {
-        return dishCrudRepository.findById(id)
-            .orElseThrow(() -> new ObjectNotFoundException("[dish: " +Long.toString(id)+ "]"));
+    public GetDish findOneById(Long id) {
+        // primero buscamos la entidad. la enviamos a toGeDto para que devuelva un getDish
+        return DishMapper.toGetDto(this.findOneEntityById(id)); // respuesta 
+    }
+
+    private Dish findOneEntityById(Long id) {
+        return dishCrudRepository.findById(id) // devuelve un optional<Entity>
+            .orElseThrow(() -> new ObjectNotFoundException("[dish: " + Long.toString(id) + "]"));
     }
 
     @Override
-    public Dish updtedOneById(Long id, Dish dish) {
+    public GetDish updtedOneById(Long id, SaveDish saveDto) {
         
-        Dish oldDish = this.findOneById(id);
-        
-        oldDish.setAvailable(dish.isAvailable());
-        oldDish.setCategory(dish.getCategory());
-        oldDish.setDescription(dish.getDescription());
-        oldDish.setName(dish.getName());
-        oldDish.setPrice(dish.getPrice());
+        Dish oldDish = this.findOneEntityById(id); // obtenemos la entidad
 
-        return dishCrudRepository.save(oldDish);
+        DishMapper.updateEntity(oldDish, saveDto); // actualiza los valores de la entidad
+
+        return DishMapper.toGetDto(dishCrudRepository.save(oldDish)); // getdish de respuesta
     }
 
     @Override
-    public Dish createOne(Dish dish) {
-        return dishCrudRepository.save(dish);
+    public GetDish createOne(SaveDish saveDto) {
+        Dish newDish = DishMapper.toEntity(saveDto); // convierte a entidad
+        Dish savedDish = dishCrudRepository.save(newDish);  // devuelve la entidad con el ID autogenerado.
+        
+        return DishMapper.toGetDto(savedDish); // respuesta
     }
 
     @Override

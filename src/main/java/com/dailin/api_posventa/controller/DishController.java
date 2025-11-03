@@ -14,8 +14,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.dailin.api_posventa.dto.request.SaveDish;
+import com.dailin.api_posventa.dto.response.GetDish;
 import com.dailin.api_posventa.exception.ObjectNotFoundException;
-import com.dailin.api_posventa.persistence.entity.Dish;
 import com.dailin.api_posventa.service.DishService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,40 +29,41 @@ public class DishController {
     private DishService dishService;
 
     @GetMapping
-    public List<Dish> findAll() {
-        return dishService.findAll();
+    public ResponseEntity<List<GetDish>> findAll() {
+        return ResponseEntity.ok(dishService.findAll());
     }
     
     @GetMapping(value = "/{id}")
-    public ResponseEntity<Dish> findOneById(@PathVariable Long id) {
+    public ResponseEntity<GetDish> findOneById(@PathVariable Long id) {
 
         try {
             return ResponseEntity.ok(dishService.findOneById(id));
-        } catch (ObjectNotFoundException e) {
+        } 
+        catch (ObjectNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
     @PostMapping
-    public ResponseEntity<Dish> createOne(
-        @RequestBody Dish Dish, HttpServletRequest request
+    public ResponseEntity<GetDish> createOne(
+        @RequestBody SaveDish saveDto, HttpServletRequest request
     ){
-        Dish dishCreated = dishService.createOne(Dish);
+        GetDish dishCreated = dishService.createOne(saveDto);
         String baseUrl = request.getRequestURL().toString();
 
         // localizacion para el Dish recien creado 
-        URI newLocation = URI.create(baseUrl + "/" + dishCreated.getId());
+        URI newLocation = URI.create(baseUrl + "/" + dishCreated.id());
 
         return ResponseEntity.created(newLocation).body(dishCreated);
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<Dish> updatedOneById(
-        @PathVariable Long id, @RequestBody Dish Dish
+    public ResponseEntity<GetDish> updatedOneById(
+        @PathVariable Long id, @RequestBody SaveDish saveDto
     ){
 
         try {
-            Dish dishUpdated = dishService.updtedOneById(id, Dish);
+            GetDish dishUpdated = dishService.updtedOneById(id, saveDto);
             return ResponseEntity.ok(dishUpdated);
         } 
         catch (ObjectNotFoundException e) {

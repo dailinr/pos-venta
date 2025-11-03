@@ -6,7 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dailin.api_posventa.dto.request.SaveProduct;
+import com.dailin.api_posventa.dto.response.GetProduct;
 import com.dailin.api_posventa.exception.ObjectNotFoundException;
+import com.dailin.api_posventa.mapper.ProductMapper;
 import com.dailin.api_posventa.persistence.entity.Product;
 import com.dailin.api_posventa.persistence.repository.ProductCrudRepository;
 import com.dailin.api_posventa.service.ProductService;
@@ -19,8 +22,11 @@ public class ProductServiceImpl implements ProductService {
     private ProductCrudRepository productCrudRepository;
 
     @Override
-    public Product createOne(Product product) {
-        return productCrudRepository.save(product);
+    public GetProduct createOne(SaveProduct saveDto) {
+        Product newProduct = ProductMapper.toEntity(saveDto); // convierte a entidad
+        Product saveProduct = productCrudRepository.save(newProduct);
+
+        return ProductMapper.toGetDto(saveProduct); // respuesta
     }
 
     @Override
@@ -36,29 +42,30 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<Product> findAll() {
-        return productCrudRepository.findAll();
+    public List<GetProduct> findAll() {
+        List<Product> entities = productCrudRepository.findAll(); // obtenemos las entidades
+        return ProductMapper.toGetDtoList(entities);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public Product findOneById(Long id) {
-        return productCrudRepository.findById(id)
-            .orElseThrow(() -> new ObjectNotFoundException("[product: " +Long.toString(id)+ "]"));
+    public GetProduct findOneById(Long id) {
+        // primero buscamos la entidad. la enviamos a toGeDto para que devuelva un getProduct
+        return ProductMapper.toGetDto(this.findOneEntityById(id)); // respuesta 
+    }
+
+    private Product findOneEntityById(Long id) {
+        return productCrudRepository.findById(id) // devuelve un optional<Entity>
+            .orElseThrow(() -> new ObjectNotFoundException("[product: " + Long.toString(id) + " ]"));
     }
 
     @Override
-    public Product updtedOneById(Long id, Product product) {
+    public GetProduct updtedOneById(Long id, SaveProduct saveDto) {
         
-        Product oldProduct = this.findOneById(id);
+        Product oldProduct = this.findOneEntityById(id); // obtenemos la entidad
 
-        oldProduct.setAvailable(product.isAvailable());
-        oldProduct.setDescription(product.getDescription());
-        oldProduct.setMeasureUnit(product.getMeasureUnit());
-        oldProduct.setName(product.getName());
-        oldProduct.setPrice(product.getPrice());
-        oldProduct.setQuantityAvailable(product.getQuantityAvailable());
+        ProductMapper.updateEntity(oldProduct, saveDto); // actualiza los valores de la entidad
 
-        return productCrudRepository.save(oldProduct);
+        return ProductMapper.toGetDto(productCrudRepository.save(oldProduct)); // getproduct de respuesta
     }
 }

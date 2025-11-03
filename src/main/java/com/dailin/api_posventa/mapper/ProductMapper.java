@@ -14,14 +14,16 @@ public class ProductMapper {
         if(entity == null) return null;
 
         return new GetProduct(
+            entity.getId(),
             entity.isAvailable(),
             entity.getPrice(), 
             entity.getQuantityAvailable(), 
             entity.getDescription(), 
             entity.getName(), 
             entity.getMeasureUnit(), 
-            null
+            CategoryMapper.toGetSimpleDto(entity.getCategory())
         );
+
     }
 
     // mapper un List<Product> a un List<GetProduct>
@@ -49,5 +51,18 @@ public class ProductMapper {
         newProduct.setQuantityAvailable(saveDto.quantityAvailable());
 
         return newProduct;
+    }
+
+    // actualiza los valores de la entidad por los nuevo que envia el usuario
+    public static void updateEntity(Product oldProduct, SaveProduct saveDto) {
+        
+        if(oldProduct == null || saveDto == null) return;
+
+        oldProduct.setAvailable(saveDto.available());
+        oldProduct.setDescription(saveDto.description());
+        oldProduct.setMeasureUnit(saveDto.measureUnit());
+        oldProduct.setName(saveDto.name());
+        oldProduct.setPrice(saveDto.price());
+        oldProduct.setQuantityAvailable(saveDto.quantityAvailable());
     }
 }
