@@ -14,7 +14,7 @@ import jakarta.persistence.ManyToOne;
 public class Dish {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @Column(nullable = false)
     private boolean available;
@@ -43,7 +43,7 @@ public class Dish {
         this.category = category;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
@@ -63,7 +63,7 @@ public class Dish {
         return name;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

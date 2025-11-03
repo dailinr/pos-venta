@@ -17,7 +17,7 @@ import jakarta.persistence.ManyToOne;
 public class Product {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @Column(nullable = false)
     private String name;
@@ -44,7 +44,7 @@ public class Product {
     @JoinColumn(name = "category_id", insertable = false, updatable = false)
     private Category category;
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
@@ -72,7 +72,7 @@ public class Product {
         return available;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

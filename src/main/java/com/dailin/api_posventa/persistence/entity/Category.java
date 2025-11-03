@@ -18,7 +18,7 @@ import jakarta.persistence.OneToMany;
 public class Category {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @Column(nullable = false)
     private String name;
@@ -38,7 +38,7 @@ public class Category {
     @OneToMany(mappedBy = "category", fetch = FetchType.EAGER) // 'category' es el nombre del atributo en la clase Dish
     private List<Dish> dishes;
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
@@ -62,7 +62,7 @@ public class Category {
         return dishes;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
