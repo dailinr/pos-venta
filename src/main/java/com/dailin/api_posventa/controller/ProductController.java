@@ -20,6 +20,7 @@ import com.dailin.api_posventa.exception.ObjectNotFoundException;
 import com.dailin.api_posventa.service.ProductService;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/products")
@@ -46,7 +47,7 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<GetProduct> createOne(
-        @RequestBody SaveProduct saveDto, HttpServletRequest request
+        @RequestBody @Valid SaveProduct saveDto, HttpServletRequest request
     ){
         GetProduct productCreated = productService.createOne(saveDto);
         String baseUrl = request.getRequestURL().toString();
@@ -59,7 +60,7 @@ public class ProductController {
 
     @PutMapping(value = "/{id}")
     public ResponseEntity<GetProduct> updatedOneById(
-        @PathVariable Long id, @RequestBody SaveProduct saveDto
+        @PathVariable Long id, @RequestBody @Valid SaveProduct saveDto
     ){
 
         try {

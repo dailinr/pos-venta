@@ -20,6 +20,7 @@ import com.dailin.api_posventa.exception.ObjectNotFoundException;
 import com.dailin.api_posventa.service.DishService;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/dishes")
@@ -46,7 +47,7 @@ public class DishController {
 
     @PostMapping
     public ResponseEntity<GetDish> createOne(
-        @RequestBody SaveDish saveDto, HttpServletRequest request
+        @RequestBody @Valid SaveDish saveDto, HttpServletRequest request
     ){
         GetDish dishCreated = dishService.createOne(saveDto);
         String baseUrl = request.getRequestURL().toString();
@@ -59,7 +60,7 @@ public class DishController {
 
     @PutMapping(value = "/{id}")
     public ResponseEntity<GetDish> updatedOneById(
-        @PathVariable Long id, @RequestBody SaveDish saveDto
+        @PathVariable Long id, @RequestBody @Valid SaveDish saveDto
     ){
 
         try {
