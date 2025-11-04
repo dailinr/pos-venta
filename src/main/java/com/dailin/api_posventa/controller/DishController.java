@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.dailin.api_posventa.dto.request.SaveDish;
 import com.dailin.api_posventa.dto.response.GetDish;
-import com.dailin.api_posventa.exception.ObjectNotFoundException;
 import com.dailin.api_posventa.service.DishService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -56,25 +55,14 @@ public class DishController {
     public ResponseEntity<GetDish> updatedOneById(
         @PathVariable Long id, @RequestBody @Valid SaveDish saveDto
     ){
-
-        try {
-            GetDish dishUpdated = dishService.updtedOneById(id, saveDto);
-            return ResponseEntity.ok(dishUpdated);
-        } 
-        catch (ObjectNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        GetDish dishUpdated = dishService.updtedOneById(id, saveDto);
+        return ResponseEntity.ok(dishUpdated);
     }
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> deleteOneById(@PathVariable Long id){
 
-        try {
-            dishService.deleteOneById(id);
-            return ResponseEntity.noContent().build();
-        } 
-        catch (ObjectNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        dishService.deleteOneById(id);
+        return ResponseEntity.noContent().build();
     }
 }
