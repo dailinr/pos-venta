@@ -36,13 +36,7 @@ public class DishController {
     
     @GetMapping(value = "/{id}")
     public ResponseEntity<GetDish> findOneById(@PathVariable Long id) {
-
-        try {
-            return ResponseEntity.ok(dishService.findOneById(id));
-        } 
-        catch (ObjectNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok(dishService.findOneById(id));
     }
 
     @PostMapping
