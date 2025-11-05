@@ -45,16 +45,48 @@ public class CategoryServiceImpl implements CategoryService{
         
         Category oldCategory = this.finOneEntityById(id);
 
+        // Actualizar campos simples usando el Mapper
         CategoryMapper.updateEntity(oldCategory, saveDto);
+
+        // Lógica de Actualización de Padre
+        Long newParentId = saveDto.parentCategoryId();
+
+        if (newParentId != null) {
+            // Validación de Ciclo: No puede ser su propia padre.
+            if (id.equals(newParentId)) {
+                throw new IllegalArgumentException("La categoría " + id + " no puede ser su propia categoría padre.");
+            }
+            
+            // Buscar y asignar la entidad categoria_padre
+            Category parent = this.finOneEntityById(newParentId);
+            oldCategory.setParentCategory(parent);
+
+        } else {
+            // Si el ID es NULL, se elimina la relación (se convierte en raíz - categoria_padre)
+            oldCategory.setParentCategory(null);
+        }
         
+        // Persistir y Mapear
         return CategoryMapper.toGetSimpleDto(categoryCrudRepository.save(oldCategory));
     }
 
     @Override
     public GetCategorySimple createOne(SaveCategory saveDto) {
+        // Convertir DTO a Entidad (datos simples)
         Category newCategory = CategoryMapper.toEntity(saveDto);
-        Category saveCategory = categoryCrudRepository.save(newCategory);
 
+        /*
+            Si el DTO trae un parentCategoryId
+            buscamos la entidad padre (Category) con finOneEntityById 
+            y la asignamos a la nueva entidad.
+        */
+        if (saveDto.parentCategoryId() != null) {
+            Category parent = this.finOneEntityById(saveDto.parentCategoryId());
+            newCategory.setParentCategory(parent);
+        }
+
+        // Persistir y Mapear
+        Category saveCategory = categoryCrudRepository.save(newCategory);
         return CategoryMapper.toGetSimpleDto(saveCategory);
     }
 
@@ -62,11 +94,10 @@ public class CategoryServiceImpl implements CategoryService{
     public void deleteOneById(Long id) {
         
         // mientras tanto
-        if(categoryCrudRepository.existsById(id)){
-            categoryCrudRepository.deleteById(id);
-            return;
+        if(!categoryCrudRepository.existsById(id)){
+            throw new ObjectNotFoundException("[category: " +Long.toString(id)+ "]");
         }
 
-        throw new ObjectNotFoundException("[category: " +Long.toString(id)+ "]");
+        categoryCrudRepository.deleteById(id);
     }
 }
