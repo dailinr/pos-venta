@@ -4,8 +4,11 @@ import com.dailin.api_posventa.utils.CategoryType;
 import java.io.Serializable;
 
 public record GetCategorySimple(
+
     Long id,
     String name,
     CategoryType type,
-    boolean available
+    Boolean priceEnabled,
+    Long parentCategoryId
+
 ) implements Serializable {}

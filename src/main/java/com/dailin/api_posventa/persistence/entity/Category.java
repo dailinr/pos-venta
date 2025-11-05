@@ -12,6 +12,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 
 @Entity
@@ -27,8 +29,13 @@ public class Category {
     @Enumerated(EnumType.STRING)
     private CategoryType type;
 
-    @Column(nullable = false)
-    private boolean available;
+    @Column(name = "price_enabled", nullable = false)
+    private boolean priceEnabled = true; 
+
+    // Usamos el ID de la propia entidad. Puede ser NULL si es una categoría raíz.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_category_id") // Columna de la llave foránea
+    private Category parentCategory;
 
     // Una Categoría clasifica a muchos Productos
     @OneToMany(mappedBy = "category", fetch = FetchType.EAGER) // 'category' es el nombre del atributo en la clase Product
@@ -42,16 +49,28 @@ public class Category {
         return id;
     }
 
+    public void setPriceEnabled(boolean priceEnabled) {
+        this.priceEnabled = priceEnabled;
+    }
+
+    public void setParentCategory(Category parentCategory) {
+        this.parentCategory = parentCategory;
+    }
+
+    public boolean isPriceEnabled() {
+        return priceEnabled;
+    }
+
+    public Category getParentCategory() {
+        return parentCategory;
+    }
+
     public String getName() {
         return name;
     }
 
     public CategoryType getType() {
         return type;
-    }
-
-    public boolean isAvailable() {
-        return available;
     }
 
     public List<Product> getProducts() {
@@ -72,10 +91,6 @@ public class Category {
 
     public void setType(CategoryType type) {
         this.type = type;
-    }
-
-    public void setAvailable(boolean available) {
-        this.available = available;
     }
 
     public void setProducts(List<Product> products) {

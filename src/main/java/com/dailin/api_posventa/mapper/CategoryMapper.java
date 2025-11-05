@@ -18,11 +18,17 @@ public class CategoryMapper {
 
         if(entity == null) return null;
 
+        // Obtenemos el ID del padre (o null si no tiene)
+        Long parentId = entity.getParentCategory() != null 
+            ? entity.getParentCategory().getId() 
+            : null;
+
         return new GetCategorySimple(
             entity.getId(),
             entity.getName(), 
-            entity.getType(), 
-            entity.isAvailable()
+            entity.getType(),
+            entity.isPriceEnabled(),
+            parentId
         );
     }
 
@@ -47,11 +53,10 @@ public class CategoryMapper {
 
         newCategory.setName(saveDto.name());
         newCategory.setType(saveDto.type());
-        newCategory.setAvailable(saveDto.available());
+        newCategory.setPriceEnabled(saveDto.priceEnabled());
         
         // La asignación del parentCategory (si existe) debe ocurrir en el servicio
         // newCategory.setParentCategory(saveDto.parentCategoryId()); 
-
 
         return newCategory;
     }
@@ -62,6 +67,8 @@ public class CategoryMapper {
 
         oldCategory.setName(saveDto.name());
         oldCategory.setType(saveDto.type());
-        oldCategory.setAvailable(saveDto.available());
+        oldCategory.setPriceEnabled(saveDto.priceEnabled());
+        
+        // NOTA: La actualización del ParentCategory (entidad) se hace en el Servicio.
     }
 }

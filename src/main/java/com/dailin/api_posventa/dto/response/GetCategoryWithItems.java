@@ -8,7 +8,6 @@ public record GetCategoryWithItems(
     Long id,
     String name,
     CategoryType type,
-    boolean available,
     
     // Si la categoría es hija, incluir la información del padre
     CategorySimple parentCategory, 
