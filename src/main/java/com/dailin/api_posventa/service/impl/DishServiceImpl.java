@@ -12,6 +12,7 @@ import com.dailin.api_posventa.exception.ObjectNotFoundException;
 import com.dailin.api_posventa.mapper.DishMapper;
 import com.dailin.api_posventa.persistence.entity.Dish;
 import com.dailin.api_posventa.persistence.repository.DishCrudRepository;
+import com.dailin.api_posventa.persistence.specification.FindAllDishSpecification;
 import com.dailin.api_posventa.service.DishService;
 
 @Transactional
@@ -23,8 +24,10 @@ public class DishServiceImpl implements DishService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<GetDish> findAll() {
-        List<Dish> entities = dishCrudRepository.findAll(); // obtenemos las entidades
+    public List<GetDish> findAll(Boolean available) {
+
+        FindAllDishSpecification dishSpecification = new FindAllDishSpecification(available);
+        List<Dish> entities = dishCrudRepository.findAll(dishSpecification); // obtenemos las entidades
         return DishMapper.toGetDtoList(entities); 
     }
 

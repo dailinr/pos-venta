@@ -7,7 +7,7 @@ import com.dailin.api_posventa.dto.response.GetProduct;
 
 public interface ProductService {
 
-    List<GetProduct> findAll();
+    List<GetProduct> findAll(Boolean available);
 
     GetProduct findOneById(Long id);
 

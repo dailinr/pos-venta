@@ -12,6 +12,7 @@ import com.dailin.api_posventa.exception.ObjectNotFoundException;
 import com.dailin.api_posventa.mapper.ProductMapper;
 import com.dailin.api_posventa.persistence.entity.Product;
 import com.dailin.api_posventa.persistence.repository.ProductCrudRepository;
+import com.dailin.api_posventa.persistence.specification.FindAllProductSpecification;
 import com.dailin.api_posventa.service.ProductService;
 
 @Transactional
@@ -42,8 +43,10 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<GetProduct> findAll() {
-        List<Product> entities = productCrudRepository.findAll(); // obtenemos las entidades
+    public List<GetProduct> findAll(Boolean available) {
+        
+        FindAllProductSpecification productSpecification = new FindAllProductSpecification(available);
+        List<Product> entities = productCrudRepository.findAll(productSpecification); // obtenemos las entidades
         return ProductMapper.toGetDtoList(entities);
     }
 

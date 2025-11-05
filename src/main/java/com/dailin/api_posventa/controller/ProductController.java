@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.dailin.api_posventa.dto.request.SaveProduct;
 import com.dailin.api_posventa.dto.response.GetProduct;
@@ -28,8 +29,10 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping
-    public ResponseEntity<List<GetProduct>> findAll() {
-        return ResponseEntity.ok(productService.findAll());
+    public ResponseEntity<List<GetProduct>> findAll(
+        @RequestParam(required = false) Boolean available
+    ) {
+        return ResponseEntity.ok(productService.findAll(available));
     }
 
     @GetMapping(value = "/{id}")

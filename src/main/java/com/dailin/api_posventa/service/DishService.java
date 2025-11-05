@@ -7,7 +7,7 @@ import com.dailin.api_posventa.dto.response.GetDish;
 
 public interface DishService {
     
-    List<GetDish> findAll();
+    List<GetDish> findAll(Boolean available);
 
     GetDish findOneById(Long id);
 

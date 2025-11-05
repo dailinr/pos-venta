@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dailin.api_posventa.dto.request.SaveDish;
@@ -29,8 +30,11 @@ public class DishController {
     private DishService dishService;
 
     @GetMapping
-    public ResponseEntity<List<GetDish>> findAll() {
-        return ResponseEntity.ok(dishService.findAll());
+    public ResponseEntity<List<GetDish>> findAll(
+        @RequestParam(required = false) Boolean available
+    ) {
+        List<GetDish> dishes = dishService.findAll(available);
+        return ResponseEntity.ok(dishes);
     }
     
     @GetMapping(value = "/{id}")
