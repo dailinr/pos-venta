@@ -25,11 +25,11 @@ public class Dish {
     @Column(nullable = false)
     private String name;
 
-    @Column(name = "category_id")
-    private Long categoryId;
+    // @Column(name = "category_id")
+    // private Long categoryId;
 
     @ManyToOne
-    @JoinColumn(name = "category_id", insertable = false, updatable = false) // Mapea a la columna FK 'category_id' en la tabla 'Dish'
+    @JoinColumn(name = "category_id", nullable = false) // Mapea a la columna FK 'category_id' en la tabla 'Dish'
     private Category category; 
 
     public Category getCategory() {

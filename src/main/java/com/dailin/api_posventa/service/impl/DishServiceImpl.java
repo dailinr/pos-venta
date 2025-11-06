@@ -10,9 +10,11 @@ import com.dailin.api_posventa.dto.request.SaveDish;
 import com.dailin.api_posventa.dto.response.GetDish;
 import com.dailin.api_posventa.exception.ObjectNotFoundException;
 import com.dailin.api_posventa.mapper.DishMapper;
+import com.dailin.api_posventa.persistence.entity.Category;
 import com.dailin.api_posventa.persistence.entity.Dish;
 import com.dailin.api_posventa.persistence.repository.DishCrudRepository;
 import com.dailin.api_posventa.persistence.specification.FindAllDishSpecification;
+import com.dailin.api_posventa.service.CategoryService;
 import com.dailin.api_posventa.service.DishService;
 
 @Transactional
@@ -21,6 +23,9 @@ public class DishServiceImpl implements DishService {
 
     @Autowired
     private DishCrudRepository dishCrudRepository;
+
+    @Autowired
+    private CategoryService categoryService;
 
     @Transactional(readOnly = true)
     @Override
@@ -49,13 +54,17 @@ public class DishServiceImpl implements DishService {
         Dish oldDish = this.findOneEntityById(id); // obtenemos la entidad
 
         DishMapper.updateEntity(oldDish, saveDto); // actualiza los valores de la entidad
+        this.assignCategory(oldDish, saveDto.categoryId());
 
         return DishMapper.toGetDto(dishCrudRepository.save(oldDish)); // getdish de respuesta
     }
 
     @Override
     public GetDish createOne(SaveDish saveDto) {
+        
         Dish newDish = DishMapper.toEntity(saveDto); // convierte a entidad
+
+        this.assignCategory(newDish, saveDto.categoryId()); // asignar categoria
         Dish savedDish = dishCrudRepository.save(newDish);  // devuelve la entidad con el ID autogenerado.
         
         return DishMapper.toGetDto(savedDish); // respuesta
@@ -71,5 +80,16 @@ public class DishServiceImpl implements DishService {
         }
 
         throw new ObjectNotFoundException("[dish: " +Long.toString(id)+ "]");
+    }
+
+    private void assignCategory(Dish dish, Long categoryId){
+        
+        if(categoryId == null){
+            throw new IllegalArgumentException("El plato debe tener una categoria asignada.");
+        }
+
+        Category category = categoryService.finOneEntityById(categoryId);
+
+        dish.setCategory(category);
     }
 }
