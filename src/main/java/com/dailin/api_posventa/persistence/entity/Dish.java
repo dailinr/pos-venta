@@ -1,7 +1,5 @@
 package com.dailin.api_posventa.persistence.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -28,7 +26,6 @@ public class Dish {
     private String name;
 
     @Column(name = "category_id")
-    @JsonProperty(value = "category_id")
     private Long categoryId;
 
     @ManyToOne

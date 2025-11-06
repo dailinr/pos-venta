@@ -62,7 +62,7 @@ public class ProductMapper {
         oldProduct.setDescription(saveDto.description());
         oldProduct.setMeasureUnit(saveDto.measureUnit());
         oldProduct.setName(saveDto.name());
-        oldProduct.setPrice(saveDto.price());
+        // oldProduct.setPrice(saveDto.price());
         oldProduct.setQuantityAvailable(saveDto.quantityAvailable());
     }
 }

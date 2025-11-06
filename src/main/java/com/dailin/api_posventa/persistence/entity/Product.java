@@ -1,7 +1,6 @@
 package com.dailin.api_posventa.persistence.entity;
 
 import com.dailin.api_posventa.utils.MeasureUnit;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -25,13 +24,11 @@ public class Product {
     private double price;
 
     @Enumerated(EnumType.STRING) 
-    @JsonProperty(value = "measure_unit")
     private MeasureUnit measureUnit;
 
     private String description;
 
     @Column(nullable = false)
-    @JsonProperty(value = "quantity_available")
     private int quantityAvailable;
 
     private boolean available;

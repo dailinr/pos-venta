@@ -2,6 +2,8 @@ package com.dailin.api_posventa.dto.request;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -20,6 +22,7 @@ public record SaveDish(
     @NotBlank(message = "{generic.notblank}")
     String name,
 
+    @JsonProperty(value = "category_id")
     Long categoryId
 
 ) implements Serializable { }
