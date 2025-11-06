@@ -13,8 +13,9 @@ public record SaveProduct(
 
     boolean available, 
 
-    @Min(value = 1, message = "{generic.min}")
-    double price, 
+    // @Min(value = 1, message = "{generic.min}")
+    // @Nullable
+    Double price, 
 
     @Min(value = 0, message = "{generic.min}")
     int quantityAvailable, 

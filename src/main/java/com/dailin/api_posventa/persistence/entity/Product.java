@@ -36,11 +36,11 @@ public class Product {
 
     private boolean available;
 
-    @Column(name = "category_id")
-    private Long categoryId;
+    // @Column(name = "category_id", nullable = false)
+    // private Long categoryId;
 
     @ManyToOne
-    @JoinColumn(name = "category_id", insertable = false, updatable = false)
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
     public Long getId() {

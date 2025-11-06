@@ -35,7 +35,8 @@ public class CategoryServiceImpl implements CategoryService{
         return CategoryMapper.toGetSimpleDto(this.finOneEntityById(id));
     }
 
-    private Category finOneEntityById(Long id) {
+    @Override
+    public Category finOneEntityById(Long id) {
         return categoryCrudRepository.findById(id)
             .orElseThrow(() -> new ObjectNotFoundException("[category: " + Long.toString(id) + " ]"));
     }

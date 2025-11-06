@@ -11,7 +11,7 @@ public record SaveDish(
     boolean available, 
 
     @Min(value = 1, message = "{generic.min}")
-    double price,
+    Double price,
 
     @Size(max = 600, message = "{generic.size.max}")
     String description,

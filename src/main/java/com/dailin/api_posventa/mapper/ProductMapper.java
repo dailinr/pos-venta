@@ -47,7 +47,7 @@ public class ProductMapper {
         newProduct.setDescription(saveDto.description());
         newProduct.setMeasureUnit(saveDto.measureUnit());
         newProduct.setName(saveDto.name());
-        newProduct.setPrice(saveDto.price());
+        // newProduct.setPrice(saveDto.price());
         newProduct.setQuantityAvailable(saveDto.quantityAvailable());
 
         return newProduct;
