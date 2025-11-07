@@ -23,6 +23,7 @@ public class Product {
 
     private double price;
 
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING) 
     private MeasureUnit measureUnit;
 
@@ -31,7 +32,7 @@ public class Product {
     @Column(nullable = false)
     private int quantityAvailable;
 
-    private boolean available;
+    private boolean available = true;
 
     // @Column(name = "category_id", nullable = false)
     // private Long categoryId;

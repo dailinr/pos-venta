@@ -15,7 +15,7 @@ public class Dish {
     private Long id;
 
     @Column(nullable = false)
-    private boolean available;
+    private boolean available = true;
 
     @Column(nullable = false)
     private double price;

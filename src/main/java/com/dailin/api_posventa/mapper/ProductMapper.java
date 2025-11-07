@@ -13,6 +13,12 @@ public class ProductMapper {
 
         if(entity == null) return null;
 
+        String categoryTitle = entity.getCategory().getName() != null
+            ? entity.getCategory().getName() : null;
+
+        Long categoryId = entity.getCategory().getId() != null
+            ? entity.getCategory().getId() : null;
+
         return new GetProduct(
             entity.getId(),
             entity.isAvailable(),
@@ -20,8 +26,10 @@ public class ProductMapper {
             entity.getQuantityAvailable(), 
             entity.getDescription(), 
             entity.getName(), 
-            entity.getMeasureUnit(), 
-            CategoryMapper.toGetSimpleDto(entity.getCategory())
+            entity.getMeasureUnit(),
+            categoryTitle,
+            categoryId
+            // CategoryMapper.toGetSimpleDto(entity.getCategory())
         );
 
     }

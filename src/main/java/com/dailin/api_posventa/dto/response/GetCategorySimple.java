@@ -9,6 +9,7 @@ public record GetCategorySimple(
     String name,
     CategoryType type,
     Boolean priceEnabled,
-    Long parentCategoryId
+    Long parentCategoryId,
+    String parentCategoryTitle
 
 ) implements Serializable {}

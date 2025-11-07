@@ -13,6 +13,8 @@ public record GetProduct(
     String description, 
     String name, 
     MeasureUnit measureUnit,
-    GetCategorySimple category // dto simple y externo
+    String categoryTitle,
+    Long categoryId
+    // GetCategorySimple category // dto simple y externo
 
 ) implements Serializable { }

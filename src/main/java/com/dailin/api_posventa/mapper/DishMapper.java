@@ -14,13 +14,22 @@ public class DishMapper {
         if(entity == null) return null;
         // La implementación futura debería mapear entity.getCategory() a un GetDish.GetCategory DTO.
 
+        String categoryTitle = entity.getCategory().getName() != null
+            ? entity.getCategory().getName() : null;
+
+        Long categoryId = entity.getCategory().getId() != null
+            ? entity.getCategory().getId() : null;
+
         return new GetDish(
             entity.getId(),
             entity.isAvailable(),
             entity.getPrice(), 
             entity.getDescription(), 
             entity.getName(), 
-            CategoryMapper.toGetSimpleDto(entity.getCategory())
+            categoryTitle,
+            categoryId
+            // CategoryMapper.toGetSimpleDto(entity.getCategory())
+
         );
     }
 

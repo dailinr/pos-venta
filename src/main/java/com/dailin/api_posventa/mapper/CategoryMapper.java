@@ -20,15 +20,18 @@ public class CategoryMapper {
 
         // Obtenemos el ID del padre (o null si no tiene)
         Long parentId = entity.getParentCategory() != null 
-            ? entity.getParentCategory().getId() 
-            : null;
+            ? entity.getParentCategory().getId() : null;
+        
+        String parentTitle = entity.getParentCategory().getName() != null  
+            ? entity.getParentCategory().getName() : null;
 
         return new GetCategorySimple(
             entity.getId(),
             entity.getName(), 
             entity.getType(),
             entity.isPriceEnabled(),
-            parentId
+            parentId,
+            parentTitle
         );
     }
 

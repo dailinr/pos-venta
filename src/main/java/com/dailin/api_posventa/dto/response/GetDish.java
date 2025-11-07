@@ -9,6 +9,8 @@ public record GetDish(
     double price,
     String description, 
     String name,
-    GetCategorySimple category // DTO simple y externo
+    // GetCategorySimple category // DTO simple y externo
+    String categoryTitle,
+    Long categoryId
 
 ) implements Serializable { }
