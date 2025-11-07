@@ -12,9 +12,7 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
 public record SaveProduct(
-
-    boolean available, 
-
+    
     Double price, 
 
     @Min(value = 0, message = "{generic.min}")

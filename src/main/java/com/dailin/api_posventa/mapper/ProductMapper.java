@@ -51,7 +51,6 @@ public class ProductMapper {
 
         Product newProduct = new Product();
 
-        newProduct.setAvailable(saveDto.available());
         newProduct.setDescription(saveDto.description());
         newProduct.setMeasureUnit(saveDto.measureUnit());
         newProduct.setName(saveDto.name());
@@ -66,7 +65,6 @@ public class ProductMapper {
         
         if(oldProduct == null || saveDto == null) return;
 
-        oldProduct.setAvailable(saveDto.available());
         oldProduct.setDescription(saveDto.description());
         oldProduct.setMeasureUnit(saveDto.measureUnit());
         oldProduct.setName(saveDto.name());

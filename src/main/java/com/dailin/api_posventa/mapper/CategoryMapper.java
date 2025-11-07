@@ -22,8 +22,11 @@ public class CategoryMapper {
         Long parentId = entity.getParentCategory() != null 
             ? entity.getParentCategory().getId() : null;
         
-        String parentTitle = entity.getParentCategory().getName() != null  
-            ? entity.getParentCategory().getName() : null;
+        String parentTitle = entity.getParentCategory() != null
+            ? entity.getParentCategory().getName() != null
+                ?  entity.getParentCategory().getName() : null
+            : null;
+
 
         return new GetCategorySimple(
             entity.getId(),

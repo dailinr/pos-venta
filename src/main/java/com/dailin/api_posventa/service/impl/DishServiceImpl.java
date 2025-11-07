@@ -16,6 +16,7 @@ import com.dailin.api_posventa.persistence.repository.DishCrudRepository;
 import com.dailin.api_posventa.persistence.specification.FindAllDishSpecification;
 import com.dailin.api_posventa.service.CategoryService;
 import com.dailin.api_posventa.service.DishService;
+import com.dailin.api_posventa.utils.CategoryType;
 
 @Transactional
 @Service
@@ -89,6 +90,13 @@ public class DishServiceImpl implements DishService {
         }
 
         Category category = categoryService.finOneEntityById(categoryId);
+
+        if(category.getType() != CategoryType.MENU) {
+            throw new IllegalArgumentException(
+                "Los platillos no pueden ser asignados a una categoria '" + category.getName() + 
+                "', ya que es del tipo '"+category.getType()+"'."
+            );
+        }
 
         dish.setCategory(category);
     }

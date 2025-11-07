@@ -27,41 +27,8 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private CategoryService categoryService;
 
-    /**
-     * 🆕 Valida la regla de precio de la categoría y asigna la entidad Category al Producto.
-     * Esto es crucial para la integridad de la FK y la regla de negocio.
-     */
-    private void assignCategoryAndValidatePrice(Product product, Long categoryId, Double requestedPrice) {
-        
-        if (categoryId == null) {
-            // El producto debe pertenecer a una categoría (Restricción NOT NULL en FK)
-            throw new IllegalArgumentException("El producto debe tener una categoría asignada.");
-        }
-        
-        // Obtener la entidad Category
-        Category category = categoryService.finOneEntityById(categoryId);
-        
-        // Si la categoría NO permite precio (priceEnabled=false):
-        if (!category.isPriceEnabled() && requestedPrice != null && requestedPrice > 0) { 
-            throw new IllegalArgumentException(
-                "La categoría '" + category.getName() + "' no permite precio de venta. El precio debe ser 0."
-            );
-        }
-
-        // Si requestedPrice es null, lo forzamos a 0.0 antes de asignarlo a la entidad.
-        if (requestedPrice == null) requestedPrice = 0.0;
-        
-        product.setPrice(requestedPrice); // Asigna el valor (ya corregido a 0 si era necesario)
-        product.setCategory(category); // Asignar la entidad Category al Producto 
-    }
-
     @Override
     public GetProduct createOne(SaveProduct saveDto) {
-        if (saveDto.categoryId() == null) {
-            // Esto debería capturar si el DTO no deserializa el campo correctamente
-            throw new IllegalArgumentException("categoryId en DTO es NULL.");
-        }
-        
         
         Product newProduct = ProductMapper.toEntity(saveDto); // convierte a entidad
         
@@ -69,6 +36,9 @@ public class ProductServiceImpl implements ProductService {
         this.assignCategoryAndValidatePrice(
             newProduct, saveDto.categoryId(), saveDto.price()
         );
+
+        // Determinar la disponibilidad basada en la cantidad ingresada
+        this.setAvailability(newProduct);
 
         // Persistir y responder
         Product saveProduct = productCrudRepository.save(newProduct);
@@ -115,12 +85,51 @@ public class ProductServiceImpl implements ProductService {
         // Actualizar los campos simples de la entidad
         ProductMapper.updateEntity(oldProduct, saveDto); // actualiza los valores de la entidad
 
-        // 2. 🆕 Revalidar precio y reasignar la entidad Category
+        // Revalidar precio y reasignar la entidad Category
         this.assignCategoryAndValidatePrice(
             oldProduct, saveDto.categoryId(), saveDto.price()
         );
 
+        // Redeterminar la disponibilidad con la nueva cantidad
+        this.setAvailability(oldProduct);
+
         // persistir y dar respuesta
         return ProductMapper.toGetDto(productCrudRepository.save(oldProduct)); // getproduct de respuesta
+    }
+
+    /**
+     * 🆕 Valida la regla de precio de la categoría y asigna la entidad Category al Producto.
+     * Esto es crucial para la integridad de la FK y la regla de negocio.
+     */
+    private void assignCategoryAndValidatePrice(Product product, Long categoryId, Double requestedPrice) {
+        
+        if (categoryId == null) {
+            // El producto debe pertenecer a una categoría (Restricción NOT NULL en FK)
+            throw new IllegalArgumentException("El producto debe tener una categoría asignada.");
+        }
+        
+        // Obtener la entidad Category
+        Category category = categoryService.finOneEntityById(categoryId);
+        
+        // Si la categoría NO permite precio (priceEnabled=false):
+        if (!category.isPriceEnabled() && requestedPrice != null && requestedPrice > 0) { 
+            throw new IllegalArgumentException(
+                "La categoría '" + category.getName() + "' no permite precio de venta. El precio debe ser 0."
+            );
+        }
+
+        // Si requestedPrice es null, lo forzamos a 0.0 antes de asignarlo a la entidad.
+        if (requestedPrice == null) requestedPrice = 0.0;
+        product.setPrice(requestedPrice); // Asigna el valor (ya corregido a 0 si era necesario)
+        product.setCategory(category); // Asignar la entidad Category al Producto 
+    }
+
+    /**
+     * Determina si un producto está disponible basándose en su cantidad.
+     */
+    private void setAvailability(Product product) {
+        // Si la cantidad es mayor que cero, está disponible (true), si es cero o menos, no (false).
+        boolean isAvailable = product.getQuantityAvailable() > 0;
+        product.setAvailable(isAvailable);
     }
 }
