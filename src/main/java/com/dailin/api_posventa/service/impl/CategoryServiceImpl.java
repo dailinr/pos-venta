@@ -52,21 +52,14 @@ public class CategoryServiceImpl implements CategoryService{
         // Lógica de Actualización de Padre
         Long newParentId = saveDto.parentCategoryId();
 
-        if (newParentId != null) {
-            // Validación de Ciclo: No puede ser su propia padre.
-            if (id.equals(newParentId)) {
-                throw new IllegalArgumentException("La categoría " + id + " no puede ser su propia categoría padre.");
-            }
-            
-            // Buscar y asignar la entidad categoria_padre
-            Category parent = this.finOneEntityById(newParentId);
-            oldCategory.setParentCategory(parent);
-
-        } else {
-            // Si el ID es NULL, se elimina la relación (se convierte en raíz - categoria_padre)
-            oldCategory.setParentCategory(null);
+        // Validación de Ciclo: No puede ser su propia padre.
+        if (newParentId != null && id.equals(newParentId)) {    
+            throw new IllegalArgumentException("La categoría " + id + " no puede ser su propia categoría padre.");
         }
-        
+
+        // Este método le asignará la categoria padre (si se envia)
+        this.assignParentCategory(newParentId, oldCategory);
+            
         // Persistir y Mapear
         return CategoryMapper.toGetSimpleDto(categoryCrudRepository.save(oldCategory));
     }
@@ -76,15 +69,9 @@ public class CategoryServiceImpl implements CategoryService{
         // Convertir DTO a Entidad (datos simples)
         Category newCategory = CategoryMapper.toEntity(saveDto);
 
-        /*
-            Si el DTO trae un parentCategoryId
-            buscamos la entidad padre (Category) con finOneEntityById 
-            y la asignamos a la nueva entidad.
-        */
-        if (saveDto.parentCategoryId() != null) {
-            Category parent = this.finOneEntityById(saveDto.parentCategoryId());
-            newCategory.setParentCategory(parent);
-        }
+        this.assignParentCategory(
+            saveDto.parentCategoryId(), newCategory
+        );
 
         // Persistir y Mapear
         Category saveCategory = categoryCrudRepository.save(newCategory);
@@ -101,4 +88,26 @@ public class CategoryServiceImpl implements CategoryService{
 
         categoryCrudRepository.deleteById(id);
     }
+
+    private void assignParentCategory(Long parentId, Category category) {
+
+        if(parentId != null) {
+            Category parent = this.finOneEntityById(parentId);
+
+            if(parent.getType() != category.getType()){
+                throw new IllegalArgumentException(
+                    "Error de tipo de categoría: La categoría '" + category.getName() + 
+                    "' debe tener el mismo tipo (" + parent.getType() + 
+                    ") que su categoría padre '" + parent.getName() + "'."
+                );
+            }
+            category.setParentCategory(parent);
+        } 
+        else {
+            // Manejar el caso de que parentId sea null (Categoría raíz)
+            category.setParentCategory(null);
+        }
+
+    }
+
 }

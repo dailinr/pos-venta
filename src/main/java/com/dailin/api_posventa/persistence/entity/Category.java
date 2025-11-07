@@ -15,8 +15,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
+@Table(
+    uniqueConstraints = @UniqueConstraint(
+        name = "UQ_CATEGORY_ALL_FIELDS", // Nombre de la restricción en la DB
+        columnNames = { "name", "type", "parent_category_id" }
+    )
+)
 public class Category {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

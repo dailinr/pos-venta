@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -32,7 +33,8 @@ public class GlobalExceptionHandler {
         MethodArgumentNotValidException.class, // el arg no es valido (según jakarta validation)
         HttpRequestMethodNotSupportedException.class, // 405: method http no permitido
         HttpMediaTypeNotSupportedException.class, // formato no soportado (solo JSON)
-        HttpMessageNotReadableException.class // formato de datos ilegible
+        HttpMessageNotReadableException.class, // formato de datos ilegible
+        DataIntegrityViolationException.class
     })
     public ResponseEntity<ApiError> handleGenericException(
         Exception exception,
@@ -61,9 +63,36 @@ public class GlobalExceptionHandler {
         else if(exception instanceof HttpMessageNotReadableException httpMessageNotReadableException){
             return this.handleHttpMessageNotReadableException(httpMessageNotReadableException, request, response, timestamp);
         }
+        else if(exception instanceof DataIntegrityViolationException dataIntegrityViolationException){
+            return this.handleDataIntegrityViolationException(dataIntegrityViolationException, request, response, timestamp);
+        }
         else {
             return this.handleException(exception, request, response, timestamp);
         }
+    }
+
+    private ResponseEntity<ApiError> handleDataIntegrityViolationException(
+        DataIntegrityViolationException dataIntegrityViolationException, 
+        HttpServletRequest request, HttpServletResponse response, LocalDateTime timestamp
+    ) {
+        int httpStatus = HttpStatus.CONFLICT.value(); 
+
+        // Extraer el mensaje específico si es posible (depende del dialecto de la DB)
+        String rootCauseMessage = dataIntegrityViolationException.getRootCause() != null 
+            ? dataIntegrityViolationException.getRootCause().getMessage() 
+            : dataIntegrityViolationException.getMessage();
+         
+        ApiError apiError = new ApiError(
+            httpStatus, 
+            request.getRequestURL().toString(), 
+            request.getMethod(), 
+            "El recurso que intenta crear ya existe. Existe una restricción de unicidad que ha sido violada.",
+            rootCauseMessage, // backendMessage
+            timestamp, 
+            null
+        );
+
+        return ResponseEntity.status(httpStatus).body(apiError);
     }
 
     private ResponseEntity<ApiError> handleHttpMessageNotReadableException(
