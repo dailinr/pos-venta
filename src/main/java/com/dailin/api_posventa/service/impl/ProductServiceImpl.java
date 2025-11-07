@@ -1,8 +1,8 @@
 package com.dailin.api_posventa.service.impl;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,11 +58,11 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<GetProduct> findAll(Boolean available) {
+    public Page<GetProduct> findAll(Boolean available, Pageable pageable) {
         
         FindAllProductSpecification productSpecification = new FindAllProductSpecification(available);
-        List<Product> entities = productCrudRepository.findAll(productSpecification); // obtenemos las entidades
-        return ProductMapper.toGetDtoList(entities);
+        Page<Product> entities = productCrudRepository.findAll(productSpecification, pageable); // obtenemos las entidades
+        return entities.map(ProductMapper::toGetDto);
     }
 
     @Transactional(readOnly = true)
@@ -97,10 +97,6 @@ public class ProductServiceImpl implements ProductService {
         return ProductMapper.toGetDto(productCrudRepository.save(oldProduct)); // getproduct de respuesta
     }
 
-    /**
-     * 🆕 Valida la regla de precio de la categoría y asigna la entidad Category al Producto.
-     * Esto es crucial para la integridad de la FK y la regla de negocio.
-     */
     private void assignCategoryAndValidatePrice(Product product, Long categoryId, Double requestedPrice) {
         
         if (categoryId == null) {
@@ -124,9 +120,6 @@ public class ProductServiceImpl implements ProductService {
         product.setCategory(category); // Asignar la entidad Category al Producto 
     }
 
-    /**
-     * Determina si un producto está disponible basándose en su cantidad.
-     */
     private void setAvailability(Product product) {
         // Si la cantidad es mayor que cero, está disponible (true), si es cero o menos, no (false).
         boolean isAvailable = product.getQuantityAvailable() > 0;

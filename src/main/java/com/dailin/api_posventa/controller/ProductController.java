@@ -1,9 +1,10 @@
 package com.dailin.api_posventa.controller;
 
 import java.net.URI;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,10 +30,11 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping
-    public ResponseEntity<List<GetProduct>> findAll(
-        @RequestParam(required = false) Boolean available
+    public ResponseEntity<Page<GetProduct>> findAll(
+        @RequestParam(required = false) Boolean available, Pageable pageable
     ) {
-        return ResponseEntity.ok(productService.findAll(available));
+        Page<GetProduct> products = productService.findAll(available, pageable);
+        return ResponseEntity.ok(products);
     }
 
     @GetMapping(value = "/{id}")

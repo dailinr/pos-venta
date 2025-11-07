@@ -1,13 +1,14 @@
 package com.dailin.api_posventa.service;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.dailin.api_posventa.dto.request.SaveProduct;
 import com.dailin.api_posventa.dto.response.GetProduct;
 
 public interface ProductService {
 
-    List<GetProduct> findAll(Boolean available);
+    Page<GetProduct> findAll(Boolean available, Pageable pageable);
 
     GetProduct findOneById(Long id);
 

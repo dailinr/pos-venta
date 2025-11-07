@@ -1,8 +1,8 @@
 package com.dailin.api_posventa.service.impl;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,11 +30,11 @@ public class DishServiceImpl implements DishService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<GetDish> findAll(Boolean available) {
+    public Page<GetDish> findAll(Boolean available, Pageable pageable) {
 
         FindAllDishSpecification dishSpecification = new FindAllDishSpecification(available);
-        List<Dish> entities = dishCrudRepository.findAll(dishSpecification); // obtenemos las entidades
-        return DishMapper.toGetDtoList(entities); 
+        Page<Dish> entities = dishCrudRepository.findAll(dishSpecification, pageable); // obtenemos las entidades
+        return entities.map(DishMapper::toGetDto); 
     }
 
     @Transactional(readOnly = true)
