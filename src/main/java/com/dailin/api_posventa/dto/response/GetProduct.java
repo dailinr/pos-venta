@@ -17,4 +17,10 @@ public record GetProduct(
     Long categoryId
     // GetCategorySimple category // dto simple y externo
 
-) implements Serializable { }
+) implements Serializable { 
+
+    public static record GetIngredient(
+        Long id, int quantity,
+        String dishTitle, Long dishId
+    ) implements Serializable {}
+}
