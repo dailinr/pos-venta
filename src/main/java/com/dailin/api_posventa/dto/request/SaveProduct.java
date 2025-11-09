@@ -30,7 +30,7 @@ public record SaveProduct(
     @JsonProperty(value = "measure_unit")
     MeasureUnit measureUnit,
 
-    @Positive(message = "La categoryId debería ser un número positivo")
+    @Positive(message = "La category_id debería ser un número positivo")
     @JsonProperty(value = "category_id")
     Long categoryId
 

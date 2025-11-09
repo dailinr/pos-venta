@@ -94,4 +94,13 @@ public class Dish {
     public void setName(String name) {
         this.name = name;
     }
+
+    public List<RecipeItem> getRecipeItems() {
+        return RecipeItems;
+    }
+
+    public void setRecipeItems(List<RecipeItem> recipeItems) {
+        RecipeItems = recipeItems;
+    }
+    
 }

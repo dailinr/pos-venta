@@ -2,16 +2,19 @@ package com.dailin.api_posventa.dto.response;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public record GetRecipeItemComplete(
 
     Long id,
 
-    Long dishId,
+    @JsonProperty(value = "dish_id") Long dishId,
 
-    String dishTitle,
+    @JsonProperty(value = "dish_title") String dishTitle,
 
-    Long productId,
+    @JsonProperty(value = "ingredient_id") Long productId,
 
+    @JsonProperty(value = "ingredient_title")
     String productTitle,
 
     int quantity

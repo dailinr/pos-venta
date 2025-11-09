@@ -1,9 +1,10 @@
 package com.dailin.api_posventa.controller;
 
-import java.util.List;
+import java.net.URI;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +19,7 @@ import com.dailin.api_posventa.dto.request.SaveRecipeItem;
 import com.dailin.api_posventa.dto.response.GetRecipeItemComplete;
 import com.dailin.api_posventa.service.RecipeItemService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid; // Asegúrate de tener esta importación para validación
 
 @RestController
@@ -33,10 +35,14 @@ public class RecipeItemController {
      */
     @PostMapping
     public ResponseEntity<GetRecipeItemComplete> createOne(
-        @Valid @RequestBody SaveRecipeItem saveDto
+        @Valid @RequestBody SaveRecipeItem saveDto, HttpServletRequest request
     ) {
         GetRecipeItemComplete createdRecipeItem = recipeItemService.createOne(saveDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdRecipeItem);
+
+        String baseUrl = request.getRequestURL().toString();
+        URI newLocation = URI.create(baseUrl + "/" + createdRecipeItem.id());
+
+        return ResponseEntity.created(newLocation).body(createdRecipeItem);
     }
 
     /**
@@ -44,8 +50,8 @@ public class RecipeItemController {
      * Obtiene todas las líneas de recetas registradas.
      */
     @GetMapping
-    public ResponseEntity<List<GetRecipeItemComplete>> findAll() {
-        List<GetRecipeItemComplete> recipeItems = recipeItemService.findAll();
+    public ResponseEntity<Page<GetRecipeItemComplete>> findAll(Pageable pageable) {
+        Page<GetRecipeItemComplete> recipeItems = recipeItemService.findAll(pageable);
         return ResponseEntity.ok(recipeItems);
     }
 
@@ -66,8 +72,7 @@ public class RecipeItemController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<GetRecipeItemComplete> updatedOneById(
-        @PathVariable Long id,
-        @Valid @RequestBody SaveRecipeItem saveDto
+        @PathVariable Long id, @Valid @RequestBody SaveRecipeItem saveDto
     ) {
         GetRecipeItemComplete updatedRecipeItem = recipeItemService.updatedOneById(id, saveDto);
         return ResponseEntity.ok(updatedRecipeItem);

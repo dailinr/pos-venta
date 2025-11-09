@@ -9,12 +9,12 @@ import jakarta.validation.constraints.Positive;
 
 public record SaveRecipeItem(
     
-    @Positive(message = "dishId debería ser un número positivo")
+    @Positive(message = "dish_id debería ser un número positivo")
     @JsonProperty(value = "dish_id")
     Long dishId,
 
-    @Positive(message = "productId debería ser un número positivo")
-    @JsonProperty(value = "product_id")
+    @Positive(message = "ingredient_id debería ser un número positivo")
+    @JsonProperty(value = "ingredient_id")
     Long productId,
 
     @Min(value = 1, message = "{generic.min}")

@@ -20,6 +20,9 @@ public class DishMapper {
         Long categoryId = entity.getCategory().getId() != null
             ? entity.getCategory().getId() : null;
 
+        int totalIngredients = entity.getRecipeItems() != null
+            ? entity.getRecipeItems().size() : 0;
+
         return new GetDish(
             entity.getId(),
             entity.isAvailable(),
@@ -27,9 +30,8 @@ public class DishMapper {
             entity.getDescription(), 
             entity.getName(), 
             categoryTitle,
-            categoryId
-            // CategoryMapper.toGetSimpleDto(entity.getCategory())
-
+            categoryId,
+            totalIngredients
         );
     }
 

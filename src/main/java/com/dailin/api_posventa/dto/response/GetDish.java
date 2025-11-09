@@ -2,6 +2,8 @@ package com.dailin.api_posventa.dto.response;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public record GetDish(
 
     Long id,
@@ -10,13 +12,16 @@ public record GetDish(
     String description, 
     String name,
     // GetCategorySimple category // DTO simple y externo
-    String categoryTitle,
-    Long categoryId
+    @JsonProperty(value = "category_title") String categoryTitle,
+    @JsonProperty(value = "category_id") Long categoryId,
+    @JsonProperty(value = "total_ingredients") int totalIngredients
 
 ) implements Serializable { 
 
     public static record GetRecipeItem(
-        Long id, Long productId, 
-        String productTitle, int quantity
+        Long id, 
+        @JsonProperty(value = "ingredient_id") Long productId, 
+        @JsonProperty(value = "ingredient_title") String productTitle, 
+        int quantity
     ) implements Serializable { }
 }

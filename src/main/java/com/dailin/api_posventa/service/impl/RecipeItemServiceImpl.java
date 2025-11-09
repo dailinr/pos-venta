@@ -1,12 +1,13 @@
 package com.dailin.api_posventa.service.impl;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dailin.api_posventa.dto.request.SaveRecipeItem;
+import com.dailin.api_posventa.dto.response.GetDish;
 import com.dailin.api_posventa.dto.response.GetRecipeItemComplete;
 import com.dailin.api_posventa.exception.ObjectNotFoundException;
 import com.dailin.api_posventa.mapper.RecipeItemMapper;
@@ -33,9 +34,16 @@ public class RecipeItemServiceImpl implements RecipeItemService  {
 
     @Override
     @Transactional(readOnly = true)
-    public List<GetRecipeItemComplete> findAll() {
-        List<RecipeItem> entities = recipeItemCrudRepository.findAll();
-        return RecipeItemMapper.toGetRecipeItemDtoList(entities);
+    public Page<GetRecipeItemComplete> findAll(Pageable pageable) {
+        return recipeItemCrudRepository.findAll(pageable)   
+            .map(RecipeItemMapper::toGetRecipeItemDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<GetDish.GetRecipeItem> findAllByDishId(Long dishId, Pageable pageable) {
+        return recipeItemCrudRepository.findByDishId(dishId, pageable)
+            .map(RecipeItemMapper::toGetDishIngrendientDto);
     }
 
     @Transactional(readOnly = true)
@@ -96,5 +104,5 @@ public class RecipeItemServiceImpl implements RecipeItemService  {
 
         recipeItemCrudRepository.deleteById(id);
     }
-  
+
 }
