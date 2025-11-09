@@ -31,9 +31,11 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<Page<GetProduct>> findAll(
-        @RequestParam(required = false) Boolean available, Pageable pageable
+        @RequestParam(required = false) Boolean available, 
+        @RequestParam(required = false) String categoryTitle,
+        Pageable pageable
     ) {
-        Page<GetProduct> products = productService.findAll(available, pageable);
+        Page<GetProduct> products = productService.findAll(available, categoryTitle, pageable);
         return ResponseEntity.ok(products);
     }
 

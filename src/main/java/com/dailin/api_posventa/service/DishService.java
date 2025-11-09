@@ -9,7 +9,7 @@ import com.dailin.api_posventa.persistence.entity.Dish;
 
 public interface DishService {
     
-    Page<GetDish> findAll(Boolean available, Pageable pageable);
+    Page<GetDish> findAll(Boolean available, String categoryTitle, Pageable pageable);
 
     GetDish findOneById(Long id);
 

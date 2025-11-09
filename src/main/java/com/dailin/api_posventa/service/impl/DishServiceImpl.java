@@ -30,9 +30,9 @@ public class DishServiceImpl implements DishService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<GetDish> findAll(Boolean available, Pageable pageable) {
+    public Page<GetDish> findAll(Boolean available, String categoryTitle, Pageable pageable) {
 
-        FindAllDishSpecification dishSpecification = new FindAllDishSpecification(available);
+        FindAllDishSpecification dishSpecification = new FindAllDishSpecification(available, categoryTitle);
         Page<Dish> entities = dishCrudRepository.findAll(dishSpecification, pageable); // obtenemos las entidades
         return entities.map(DishMapper::toGetDto); 
     }

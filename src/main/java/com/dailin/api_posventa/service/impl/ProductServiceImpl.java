@@ -58,9 +58,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<GetProduct> findAll(Boolean available, Pageable pageable) {
+    public Page<GetProduct> findAll(Boolean available, String categoryTitle, Pageable pageable) {
         
-        FindAllProductSpecification productSpecification = new FindAllProductSpecification(available);
+        FindAllProductSpecification productSpecification = new FindAllProductSpecification(available, categoryTitle);
         Page<Product> entities = productCrudRepository.findAll(productSpecification, pageable); // obtenemos las entidades
         return entities.map(ProductMapper::toGetDto);
     }

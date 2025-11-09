@@ -36,9 +36,11 @@ public class DishController {
 
     @GetMapping
     public ResponseEntity<Page<GetDish>> findAll(
-        @RequestParam(required = false) Boolean available, Pageable pageable
+        @RequestParam(required = false) Boolean available, 
+        @RequestParam(required = false) String categoryTitle,
+        Pageable pageable
     ) {
-        Page<GetDish> dishes = dishService.findAll(available, pageable);
+        Page<GetDish> dishes = dishService.findAll(available, categoryTitle, pageable);
         return ResponseEntity.ok(dishes);
     }
     
