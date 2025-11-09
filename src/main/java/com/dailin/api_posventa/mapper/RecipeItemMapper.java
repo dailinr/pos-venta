@@ -2,23 +2,23 @@ package com.dailin.api_posventa.mapper;
 
 import java.util.List;
 
-import com.dailin.api_posventa.dto.request.SaveIngredient;
+import com.dailin.api_posventa.dto.request.SaveRecipeItem;
 import com.dailin.api_posventa.dto.response.GetDish;
-import com.dailin.api_posventa.dto.response.GetIngredientComplete;
+import com.dailin.api_posventa.dto.response.GetRecipeItemComplete;
 import com.dailin.api_posventa.dto.response.GetProduct;
 import com.dailin.api_posventa.persistence.entity.Dish;
-import com.dailin.api_posventa.persistence.entity.Ingredient;
+import com.dailin.api_posventa.persistence.entity.RecipeItem;
 import com.dailin.api_posventa.persistence.entity.Product;
 
-public class IngredientMapper {
+public class RecipeItemMapper {
 
-    public static GetIngredientComplete toGetIngredientDto(Ingredient entity) {
+    public static GetRecipeItemComplete toGetRecipeItemDto(RecipeItem entity) {
 
         if(entity == null) return null;
 
         // la entidad no será null si llegamos aquí
 
-        return new GetIngredientComplete(
+        return new GetRecipeItemComplete(
             entity.getId(), 
             entity.getDish().getId(), 
             entity.getDish().getName(), 
@@ -28,11 +28,11 @@ public class IngredientMapper {
         );
     }
 
-    public static GetProduct.GetIngredient toGetProductIngrendientDto(Ingredient entity){
+    public static GetProduct.GetRecipeItem toGetProductIngrendientDto(RecipeItem entity){
 
         if(entity == null) return null;
 
-        return new GetProduct.GetIngredient(
+        return new GetProduct.GetRecipeItem(
             entity.getId(),
             entity.getQuantity(), 
             entity.getDish().getName(), 
@@ -40,11 +40,11 @@ public class IngredientMapper {
         );
     }
 
-    public static GetDish.GetIngredient toGetDishIngrendientDto(Ingredient entity){
+    public static GetDish.GetRecipeItem toGetDishIngrendientDto(RecipeItem entity){
 
         if(entity == null) return null;
 
-        return new GetDish.GetIngredient(
+        return new GetDish.GetRecipeItem(
             entity.getId(), 
             entity.getProduct().getId(), 
             entity.getProduct().getName(), 
@@ -52,32 +52,32 @@ public class IngredientMapper {
         );
     }
 
-    public static List<GetIngredientComplete> toGetIngredientDtoList(List<Ingredient> entities){
+    public static List<GetRecipeItemComplete> toGetRecipeItemDtoList(List<RecipeItem> entities){
 
         if(entities == null) return null;
 
         return entities.stream()
-            .map(IngredientMapper::toGetIngredientDto)
+            .map(RecipeItemMapper::toGetRecipeItemDto)
             .toList();
     }
 
     // Este método debe ser llamado solo por el Servicio, una vez que Dish y Product han sido buscados.
-    public static Ingredient toEntity(
-        SaveIngredient saveDto, Dish dish, Product product
+    public static RecipeItem toEntity(
+        SaveRecipeItem saveDto, Dish dish, Product product
     ) {
         if(saveDto == null) return null;
 
-        Ingredient newIngredient = new Ingredient();
+        RecipeItem newRecipeItem = new RecipeItem();
 
-        newIngredient.setDish(dish);
-        newIngredient.setProduct(product);
-        newIngredient.setQuantity(saveDto.quantity());
+        newRecipeItem.setDish(dish);
+        newRecipeItem.setProduct(product);
+        newRecipeItem.setQuantity(saveDto.quantity());
 
-        return newIngredient;
+        return newRecipeItem;
     }
 
     public static void updateEntity(
-        Ingredient entity, SaveIngredient dto, 
+        RecipeItem entity, SaveRecipeItem dto, 
         Dish dish, Product product
     ) {
         if(entity ==  null || dto == null) return;

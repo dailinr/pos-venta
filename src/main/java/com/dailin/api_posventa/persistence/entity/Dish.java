@@ -45,7 +45,7 @@ public class Dish {
     private Category category; 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "dish")
-    private List<Ingredient> ingredients;
+    private List<RecipeItem> RecipeItems;
 
     public Category getCategory() {
         return category;

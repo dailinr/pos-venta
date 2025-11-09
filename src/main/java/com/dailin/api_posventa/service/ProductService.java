@@ -5,12 +5,15 @@ import org.springframework.data.domain.Pageable;
 
 import com.dailin.api_posventa.dto.request.SaveProduct;
 import com.dailin.api_posventa.dto.response.GetProduct;
+import com.dailin.api_posventa.persistence.entity.Product;
 
 public interface ProductService {
 
     Page<GetProduct> findAll(Boolean available, Pageable pageable);
 
     GetProduct findOneById(Long id);
+
+    Product findOneEntityById(Long id);
 
     GetProduct updtedOneById(Long id, SaveProduct saveDto);
 

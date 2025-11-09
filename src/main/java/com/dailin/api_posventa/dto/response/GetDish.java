@@ -15,7 +15,7 @@ public record GetDish(
 
 ) implements Serializable { 
 
-    public static record GetIngredient(
+    public static record GetRecipeItem(
         Long id, Long productId, 
         String productTitle, int quantity
     ) implements Serializable { }

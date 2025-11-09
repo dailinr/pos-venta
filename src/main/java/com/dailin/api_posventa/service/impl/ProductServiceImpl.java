@@ -72,7 +72,8 @@ public class ProductServiceImpl implements ProductService {
         return ProductMapper.toGetDto(this.findOneEntityById(id)); // respuesta 
     }
 
-    private Product findOneEntityById(Long id) {
+    @Override
+    public Product findOneEntityById(Long id) {
         return productCrudRepository.findById(id) // devuelve un optional<Entity>
             .orElseThrow(() -> new ObjectNotFoundException("[product: " + Long.toString(id) + " ]"));
     }

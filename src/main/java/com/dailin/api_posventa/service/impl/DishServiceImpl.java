@@ -44,7 +44,8 @@ public class DishServiceImpl implements DishService {
         return DishMapper.toGetDto(this.findOneEntityById(id)); // respuesta 
     }
 
-    private Dish findOneEntityById(Long id) {
+    @Override
+    public Dish findOneEntityById(Long id) {
         return dishCrudRepository.findById(id) // devuelve un optional<Entity>
             .orElseThrow(() -> new ObjectNotFoundException("[dish: " + Long.toString(id) + "]"));
     }

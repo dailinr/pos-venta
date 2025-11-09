@@ -55,7 +55,7 @@ public class Product {
     private Category category;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "product")
-    private List<Ingredient> ingredients;
+    private List<RecipeItem> RecipeItems;
 
     public Long getId() {
         return id;

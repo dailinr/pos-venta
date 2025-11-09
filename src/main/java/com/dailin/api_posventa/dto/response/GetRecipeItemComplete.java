@@ -2,7 +2,7 @@ package com.dailin.api_posventa.dto.response;
 
 import java.io.Serializable;
 
-public record GetIngredientComplete(
+public record GetRecipeItemComplete(
 
     Long id,
 

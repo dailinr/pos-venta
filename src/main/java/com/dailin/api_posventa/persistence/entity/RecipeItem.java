@@ -17,7 +17,7 @@ import jakarta.persistence.UniqueConstraint;
         columnNames = { "dish_id", "product_id" } // La combinación de plato y producto debe ser única
     )
 )
-public class Ingredient {
+public class RecipeItem {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

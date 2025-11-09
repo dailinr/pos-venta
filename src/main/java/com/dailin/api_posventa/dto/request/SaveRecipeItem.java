@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 
-public record SaveIngredient(
+public record SaveRecipeItem(
     
     @Positive(message = "dishId debería ser un número positivo")
     @JsonProperty(value = "dish_id")
