@@ -9,7 +9,7 @@ import com.dailin.api_posventa.persistence.entity.Product;
 
 public interface ProductService {
 
-    Page<GetProduct> findAll(Boolean available, String categoryTitle, Pageable pageable);
+    Page<GetProduct> findAll(Boolean available, String categoryTitle, String categoryType, Pageable pageable);
 
     GetProduct findOneById(Long id);
 

@@ -33,9 +33,12 @@ public class ProductController {
     public ResponseEntity<Page<GetProduct>> findAll(
         @RequestParam(required = false) Boolean available, 
         @RequestParam(required = false) String categoryTitle,
+        @RequestParam(required = false) String categoryType,
         Pageable pageable
     ) {
-        Page<GetProduct> products = productService.findAll(available, categoryTitle, pageable);
+        Page<GetProduct> products = productService.findAll(
+            available, categoryTitle, categoryType, pageable
+        );
         return ResponseEntity.ok(products);
     }
 

@@ -19,10 +19,12 @@ public class FindAllProductSpecification implements Specification<Product> {
 
     private Boolean available;
     private String categoryTitle;
+    private String categoryType;
 
-    public FindAllProductSpecification(Boolean available, String categoryTitle) {
+    public FindAllProductSpecification(Boolean available, String categoryTitle, String categoryType) {
         this.available = available;
         this.categoryTitle = categoryTitle;
+        this.categoryType = categoryType;
     }
 
     @Override
@@ -30,6 +32,7 @@ public class FindAllProductSpecification implements Specification<Product> {
         
         List<Predicate> predicates = new ArrayList<>();
 
+        // Filtrar productos por su disponibilidad
         if (this.available != null) {
             Predicate availables = criteriaBuilder
                 .equal(root.get("available"), this.available);
@@ -37,6 +40,7 @@ public class FindAllProductSpecification implements Specification<Product> {
             predicates.add(availables);
         }
 
+        // Filtrar productos por su categoria
         if(StringUtils.hasText(this.categoryTitle)){
             
             // Unir a la entidad Category a través del atributo 'category' en la entidad Product.
@@ -48,6 +52,20 @@ public class FindAllProductSpecification implements Specification<Product> {
             );
 
             predicates.add(titleLike);
+        }
+
+        // Filtrar los productos según el type de su categoria 
+        if(StringUtils.hasText(categoryType)){
+
+            // Unir a la entidad Category a través del atributo 'category' en la entidad Product.
+            Join<Product, Category> categoryJoin = root.join("category");
+
+            Predicate typeLike = criteriaBuilder.like(
+                criteriaBuilder.lower(categoryJoin.get("type")), 
+                "%" + this.categoryType.toLowerCase() + "%"
+            );
+
+            predicates.add(typeLike);
         }
 
         return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
