@@ -11,6 +11,8 @@ public interface CategoryService {
 
     Page<GetCategorySimple> findAll(Pageable pageable);
 
+    Page<GetCategorySimple> findAllByParentCategoryId(Long id, Pageable pageable);
+
     GetCategorySimple findOneById(Long id);
 
     Category finOneEntityById(Long id);

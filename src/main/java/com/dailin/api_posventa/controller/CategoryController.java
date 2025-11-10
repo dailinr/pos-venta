@@ -36,6 +36,13 @@ public class CategoryController {
         return ResponseEntity.ok(categories);
     }
 
+    @GetMapping(value = "/{id}/subcategories")
+    public ResponseEntity<Page<GetCategorySimple>> findAllSubcategoriesByCategoryId(
+        @PathVariable @Valid Long id, Pageable pageable
+    ){
+        return ResponseEntity.ok(categoryService.findAllByParentCategoryId(id, pageable));
+    }
+
     @GetMapping(value = "/{id}")
     public ResponseEntity<GetCategorySimple> findOneById(@PathVariable Long id){
         return ResponseEntity.ok(categoryService.findOneById(id));

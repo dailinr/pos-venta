@@ -110,4 +110,13 @@ public class CategoryServiceImpl implements CategoryService{
 
     }
 
+    @Override
+    public Page<GetCategorySimple> findAllByParentCategoryId(Long id, Pageable pageable) {
+        // validar que la categoría padre exista
+        this.finOneEntityById(id);
+
+        return categoryCrudRepository.findByParentCategoryId(id, pageable)
+            .map(CategoryMapper::toGetSimpleDto);
+    }
+
 }
