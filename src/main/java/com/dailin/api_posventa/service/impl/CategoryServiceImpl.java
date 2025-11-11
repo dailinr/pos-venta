@@ -1,5 +1,8 @@
 package com.dailin.api_posventa.service.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -110,13 +113,46 @@ public class CategoryServiceImpl implements CategoryService{
 
     }
 
+    @Transactional(readOnly = true)
     @Override
+    public Page<GetCategorySimple> findAllRootCategories(Pageable pageable) {
+        return categoryCrudRepository.findByParentCategoryIdIsNull(pageable)
+            .map(CategoryMapper::toGetSimpleDto);
+    }
+
+    @Transactional(readOnly = true)
+    @Override // vere mas adelante si este metodo es necesario
     public Page<GetCategorySimple> findAllByParentCategoryId(Long id, Pageable pageable) {
         // validar que la categoría padre exista
         this.finOneEntityById(id);
 
         return categoryCrudRepository.findByParentCategoryId(id, pageable)
             .map(CategoryMapper::toGetSimpleDto);
+    }
+    
+    // Implementación para obtener la categoría raíz y sus IDs de hijas directas. 
+    @Transactional(readOnly = true)
+    @Override
+    public List<Long> findRootAndSubcategoriesIds(Long rootCategoryId) {
+        
+        // Validar que la categoría raíz exista.
+        this.finOneEntityById(rootCategoryId);
+        
+        List<Long> categoryIds = new ArrayList<>();
+        
+        // Incluir la categoría raíz 
+        categoryIds.add(rootCategoryId);
+        
+        // Encontrar las subcategorías directas
+        Page<Category> directChildren = categoryCrudRepository.findByParentCategoryId(
+            rootCategoryId, 
+            Pageable.unpaged()
+        );
+        
+        // Agregar los IDs de las hijas
+        directChildren.getContent().forEach(child -> categoryIds.add(child.getId()));
+        
+        return categoryIds;
     }
 
 }

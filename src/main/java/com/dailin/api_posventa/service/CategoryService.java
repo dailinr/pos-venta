@@ -1,5 +1,7 @@
 package com.dailin.api_posventa.service;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -12,6 +14,12 @@ public interface CategoryService {
     Page<GetCategorySimple> findAll(Pageable pageable);
 
     Page<GetCategorySimple> findAllByParentCategoryId(Long id, Pageable pageable);
+
+    // obtiene todas las categorias raiz (parentCategoryId = null)
+    Page<GetCategorySimple> findAllRootCategories(Pageable pageable);
+
+    // Obtiene todos los IDs de la categoría raíz y de sus hijas directas.
+    List<Long> findRootAndSubcategoriesIds(Long rootCategoryId);
 
     GetCategorySimple findOneById(Long id);
 

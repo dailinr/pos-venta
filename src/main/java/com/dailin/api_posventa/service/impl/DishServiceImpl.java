@@ -1,5 +1,7 @@
 package com.dailin.api_posventa.service.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -8,8 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.dailin.api_posventa.dto.request.SaveDish;
 import com.dailin.api_posventa.dto.response.GetDish;
+import com.dailin.api_posventa.dto.response.GetItem;
 import com.dailin.api_posventa.exception.ObjectNotFoundException;
 import com.dailin.api_posventa.mapper.DishMapper;
+import com.dailin.api_posventa.mapper.ItemMapper;
 import com.dailin.api_posventa.persistence.entity.Category;
 import com.dailin.api_posventa.persistence.entity.Dish;
 import com.dailin.api_posventa.persistence.repository.DishCrudRepository;
@@ -32,7 +36,7 @@ public class DishServiceImpl implements DishService {
     @Override
     public Page<GetDish> findAll(Boolean available, String categoryTitle, Pageable pageable) {
 
-        FindAllDishSpecification dishSpecification = new FindAllDishSpecification(available, categoryTitle);
+        FindAllDishSpecification dishSpecification = new FindAllDishSpecification(available, categoryTitle, null);
         Page<Dish> entities = dishCrudRepository.findAll(dishSpecification, pageable); // obtenemos las entidades
         return entities.map(DishMapper::toGetDto); 
     }
@@ -100,5 +104,26 @@ public class DishServiceImpl implements DishService {
         }
 
         dish.setCategory(category);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Page<GetItem> findAllByRootCategory(Long rootCategoryId, Pageable pageable) {
+        // obtener la lista de IDs (raiz + hijas)
+        List<Long> categoryIds = categoryService.findRootAndSubcategoriesIds(rootCategoryId);
+
+        if(categoryIds.isEmpty()) {
+            return Page.empty(pageable);
+        }
+
+        FindAllDishSpecification dishSpecification = new FindAllDishSpecification(
+            null, 
+            null,
+            categoryIds
+        );
+
+        Page<GetDish> getDishes = dishCrudRepository.findAll(dishSpecification, pageable)
+            .map(DishMapper::toGetDto);
+        return getDishes.map(ItemMapper::toGetDishItemDto);
     }
 }

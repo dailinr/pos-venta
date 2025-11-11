@@ -5,11 +5,14 @@ import org.springframework.data.domain.Pageable;
 
 import com.dailin.api_posventa.dto.request.SaveDish;
 import com.dailin.api_posventa.dto.response.GetDish;
+import com.dailin.api_posventa.dto.response.GetItem;
 import com.dailin.api_posventa.persistence.entity.Dish;
 
 public interface DishService {
     
     Page<GetDish> findAll(Boolean available, String categoryTitle, Pageable pageable);
+
+    Page<GetItem> findAllByRootCategory(Long rootCategoryId, Pageable pageable);
 
     GetDish findOneById(Long id);
 

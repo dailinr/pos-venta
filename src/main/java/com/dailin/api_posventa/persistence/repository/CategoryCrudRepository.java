@@ -8,4 +8,7 @@ import com.dailin.api_posventa.persistence.entity.Category;
 public interface CategoryCrudRepository extends JpaRepository<Category, Long> {
 
     Page<Category> findByParentCategoryId(Long id, Pageable pageable);
+    
+    Page<Category> findByParentCategoryIdIsNull(Pageable pageable);
+    
 }

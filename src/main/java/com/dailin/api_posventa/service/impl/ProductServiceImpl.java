@@ -1,5 +1,7 @@
 package com.dailin.api_posventa.service.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -7,8 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dailin.api_posventa.dto.request.SaveProduct;
+import com.dailin.api_posventa.dto.response.GetItem;
 import com.dailin.api_posventa.dto.response.GetProduct;
 import com.dailin.api_posventa.exception.ObjectNotFoundException;
+import com.dailin.api_posventa.mapper.ItemMapper;
 import com.dailin.api_posventa.mapper.ProductMapper;
 import com.dailin.api_posventa.persistence.entity.Category;
 import com.dailin.api_posventa.persistence.entity.Product;
@@ -60,7 +64,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<GetProduct> findAll(Boolean available, String categoryTitle, String categoryType, Pageable pageable) {
         
-        FindAllProductSpecification productSpecification = new FindAllProductSpecification(available, categoryTitle, categoryType);
+        FindAllProductSpecification productSpecification = new FindAllProductSpecification(available, categoryTitle, categoryType, null);
         Page<Product> entities = productCrudRepository.findAll(productSpecification, pageable); // obtenemos las entidades
         return entities.map(ProductMapper::toGetDto);
     }
@@ -125,5 +129,25 @@ public class ProductServiceImpl implements ProductService {
         // Si la cantidad es mayor que cero, está disponible (true), si es cero o menos, no (false).
         boolean isAvailable = product.getQuantityAvailable() > 0;
         product.setAvailable(isAvailable);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Page<GetItem> findAllByRootCategory(Long rootCategoryId, Pageable pageable) {
+        // obtener la lista de IDs (raiz + hijas)
+        List<Long> categoryIds = categoryService.findRootAndSubcategoriesIds(rootCategoryId);
+
+        if(categoryIds.isEmpty()) {
+            return Page.empty(pageable);
+        }
+
+        FindAllProductSpecification productSpecification = new FindAllProductSpecification(
+            null, null, null,
+            categoryIds
+        );
+
+        Page<GetProduct> getProducts = productCrudRepository.findAll(productSpecification, pageable) // obtenemos las entidades
+            .map(ProductMapper::toGetDto); // despues obtenemos los getProducts
+        return getProducts.map(ItemMapper::toGetProductItemDto);
     }
 }
