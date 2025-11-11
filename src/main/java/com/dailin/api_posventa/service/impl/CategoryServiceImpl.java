@@ -1,6 +1,5 @@
 package com.dailin.api_posventa.service.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -138,20 +137,11 @@ public class CategoryServiceImpl implements CategoryService{
         // Validar que la categoría raíz exista.
         this.finOneEntityById(rootCategoryId);
         
-        List<Long> categoryIds = new ArrayList<>();
+        // Obtener directamente la lista de IDs de las subcategorías (Hijas)
+        List<Long> categoryIds = categoryCrudRepository.findIdsByParentCategoryId(rootCategoryId);
         
-        // Incluir la categoría raíz 
-        categoryIds.add(rootCategoryId);
-        
-        // Encontrar las subcategorías directas
-        Page<Category> directChildren = categoryCrudRepository.findByParentCategoryId(
-            rootCategoryId, 
-            Pageable.unpaged()
-        );
-        
-        // Agregar los IDs de las hijas
-        directChildren.getContent().forEach(child -> categoryIds.add(child.getId()));
-        
+        // Incluir la categoría raíz al inicio de la lista
+        categoryIds.add(0, rootCategoryId);
         return categoryIds;
     }
 
