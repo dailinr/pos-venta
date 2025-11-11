@@ -103,6 +103,14 @@ public class CategoryServiceImpl implements CategoryService{
                     ") que su categoría padre '" + parent.getName() + "'."
                 );
             }
+
+            if(parent.getParentCategory() != null){
+                throw new IllegalArgumentException(
+                    "Error: La categoria '"+ parent.getName() +
+                    "' ya es una subcategoria, no puede ser categoria padre a la vez."
+                );
+            }
+
             category.setParentCategory(parent);
         } 
         else {
