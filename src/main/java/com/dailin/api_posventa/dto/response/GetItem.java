@@ -7,11 +7,11 @@ public record GetItem(
     Long id,
     String name,
     double price,
-    boolean available,
+    Boolean available,
     String description,
     
-    // @JsonProperty(value = "item_type")
-    // String itemType, // Para indicar si es "DISH" o "PRODUCT"
+    @JsonProperty(value = "item_type")
+    String itemType, 
     
     @JsonProperty(value = "category_id")
     Long categoryId,
@@ -19,5 +19,4 @@ public record GetItem(
     @JsonProperty(value = "category_title")
     String categoryTitle
     
-    // Aquí puedes añadir más campos comunes o un campo genérico para datos específicos
 ) implements Serializable {}

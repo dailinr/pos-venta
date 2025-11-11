@@ -2,16 +2,15 @@ package com.dailin.api_posventa.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.dailin.api_posventa.dto.response.GetItem;
-import com.dailin.api_posventa.service.DishService;
+import com.dailin.api_posventa.dto.response.ItemProjection;
+import com.dailin.api_posventa.mapper.ItemMapper;
+import com.dailin.api_posventa.persistence.repository.ItemCrudRepository;
+import com.dailin.api_posventa.service.CategoryService;
 import com.dailin.api_posventa.service.ItemService; 
-import com.dailin.api_posventa.service.ProductService;
-
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -19,54 +18,28 @@ import java.util.List;
 public class ItemServiceImpl implements ItemService {
 
     @Autowired
-    private DishService dishService;
-    
+    private ItemCrudRepository itemCrudRepository;
+
     @Autowired
-    private ProductService productService;
+    private CategoryService categoryService;
 
     @Override
     public Page<GetItem> findAllCombinedItemsByRootCategory(Long rootCategoryId, Pageable pageable) {
         
-        // El problema principal al combinar es la paginación a nivel de aplicación.
-        // Spring Data JPA no puede paginar dos consultas separadas en una sola.
-        // La solución es:
-        // 1. Obtener TODOS los resultados (Dishes + Products) sin paginar (Pageable.unpaged()).
-        // 2. Combinarlos en una lista.
-        // 3. Aplicar la paginación manualmente.
-        // NOTA: Esto solo es viable si el número total de ítems no es masivo.
+        // Obtener la lista de IDs (raíz + hijas)
+        List<Long> categoryIds = categoryService.findRootAndSubcategoriesIds(rootCategoryId);
         
-        // Obtener Platos (TODOS)
-        Page<GetItem> allDishesPage = dishService.findAllByRootCategory(
-            rootCategoryId, 
-            Pageable.unpaged() // Pedir todos sin paginar
-        );
-        
-        // 2. Obtener Productos (TODOS)
-        Page<GetItem> allProductsPage = productService.findAllByRootCategory(
-            rootCategoryId, 
-            Pageable.unpaged() // Pedir todos sin paginar
-        );
-        
-        // 3. Combinar las listas
-        List<GetItem> combinedList = new ArrayList<>();
-        combinedList.addAll(allDishesPage.getContent());
-        combinedList.addAll(allProductsPage.getContent());
-        
-        // 4. Aplicar paginación manual
-        int totalItems = combinedList.size();
-        int pageSize = pageable.getPageSize();
-        int currentPage = pageable.getPageNumber();
-        int startItem = currentPage * pageSize;
-
-        List<GetItem> pageContent;
-        
-        if (totalItems < startItem) {
-            pageContent = List.of();
-        } else {
-            int toIndex = Math.min(startItem + pageSize, totalItems);
-            pageContent = combinedList.subList(startItem, toIndex);
+        if (categoryIds.isEmpty()) {
+            return Page.empty(pageable);
         }
-        
-        return new PageImpl<>(pageContent, pageable, totalItems);
+
+        // Ejecutar la consulta nativa con paginación delegada a la DB y obtener la página de Proyeccion
+        Page<ItemProjection> nativeResults = itemCrudRepository.findAllCombinedItemsByRootCategoryNative(
+            categoryIds, 
+            pageable
+        );
+
+        // Mapear de ItemProjection a GetItem
+        return nativeResults.map(ItemMapper::toGetItemDto);
     }
 }
