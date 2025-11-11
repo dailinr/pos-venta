@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dailin.api_posventa.dto.request.SaveCategory;
@@ -75,9 +76,15 @@ public class CategoryController {
 
     @GetMapping(value = "/{id}/items")
     public ResponseEntity<Page<GetItem>> findAllCombinedItemsByRootCategory(
-        @PathVariable @Valid Long id, Pageable pageable
+        @PathVariable @Valid Long id, Pageable pageable,
+        @RequestParam(required = false) Boolean available,
+        @RequestParam(required = false) String categoryTitle,
+        @RequestParam(required = false) String categoryType
     ){
-        Page<GetItem> combinedItems = itemService.findAllCombinedItemsByRootCategory(id, pageable);
+        Page<GetItem> combinedItems = itemService.findAllCombinedItemsByRootCategory(
+            id, pageable,
+            available, categoryTitle, categoryType
+        );
         return ResponseEntity.ok(combinedItems);
     }
 

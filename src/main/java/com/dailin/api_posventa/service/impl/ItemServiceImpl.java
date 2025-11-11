@@ -5,6 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
 import com.dailin.api_posventa.dto.response.GetItem;
 import com.dailin.api_posventa.dto.response.ItemProjection;
 import com.dailin.api_posventa.mapper.ItemMapper;
@@ -24,7 +26,10 @@ public class ItemServiceImpl implements ItemService {
     private CategoryService categoryService;
 
     @Override
-    public Page<GetItem> findAllCombinedItemsByRootCategory(Long rootCategoryId, Pageable pageable) {
+    public Page<GetItem> findAllCombinedItemsByRootCategory(
+        Long rootCategoryId, Pageable pageable,
+        Boolean available, String categoryTitle, String categoryType
+    ) {
         
         // Obtener la lista de IDs (raíz + hijas)
         List<Long> categoryIds = categoryService.findRootAndSubcategoriesIds(rootCategoryId);
@@ -33,9 +38,24 @@ public class ItemServiceImpl implements ItemService {
             return Page.empty(pageable);
         }
 
+        // --- PRE-PROCESAMIENTO DE FILTROS ---
+        // Si categoryTitle está vacío o null, usamos '%' para que el LIKE no filtre.
+        String filterCategoryTitle = StringUtils.hasText(categoryTitle) 
+            ? "%" + categoryTitle.toLowerCase() + "%" 
+            : null; 
+
+        // Si categoryType está vacío o null, usamos '%' para que el LIKE no filtre.
+        String filterCategoryType = StringUtils.hasText(categoryType) 
+            ? "%" + categoryType.toLowerCase() + "%" 
+            : null; 
+
         // Ejecutar la consulta nativa con paginación delegada a la DB y obtener la página de Proyeccion
         Page<ItemProjection> nativeResults = itemCrudRepository.findAllCombinedItemsByRootCategoryNative(
             categoryIds, 
+            // FILTROS OPCIONALES
+            available, 
+            filterCategoryTitle, // Usar la versión pre-procesada
+            filterCategoryType,  // Usar la versión pre-procesada
             pageable
         );
 

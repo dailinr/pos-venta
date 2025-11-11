@@ -6,5 +6,10 @@ import org.springframework.data.domain.Pageable;
 import com.dailin.api_posventa.dto.response.GetItem;
 
 public interface ItemService {
-    Page<GetItem> findAllCombinedItemsByRootCategory(Long rootCategoryId, Pageable pageable);
+
+    Page<GetItem> findAllCombinedItemsByRootCategory(
+        Long rootCategoryId, Pageable pageable, 
+        Boolean available, String categoryTitle, String categoryType
+    );
+    
 }
