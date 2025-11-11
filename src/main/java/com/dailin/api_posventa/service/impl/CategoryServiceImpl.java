@@ -3,6 +3,7 @@ package com.dailin.api_posventa.service.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -71,6 +72,12 @@ public class CategoryServiceImpl implements CategoryService{
         // Convertir DTO a Entidad (datos simples)
         Category newCategory = CategoryMapper.toEntity(saveDto);
 
+        if(categoryCrudRepository.existsByNameAndType(saveDto.name(), saveDto.type())){
+            throw new DataIntegrityViolationException(
+                "El recurso que intenta crear ya existe. Existe una restricción de unicidad que ha sido violada."
+            );
+        }
+
         this.assignParentCategory(
             saveDto.parentCategoryId(), newCategory
         );
@@ -96,6 +103,7 @@ public class CategoryServiceImpl implements CategoryService{
         if(parentId != null) {
             Category parent = this.finOneEntityById(parentId);
 
+            // la categoria debe tener el mismo type que su parentCategory
             if(parent.getType() != category.getType()){
                 throw new IllegalArgumentException(
                     "Error de tipo de categoría: La categoría '" + category.getName() + 
@@ -104,6 +112,7 @@ public class CategoryServiceImpl implements CategoryService{
                 );
             }
 
+            // solo puede haber 1 nivel de descendencia para una categoria raiz
             if(parent.getParentCategory() != null){
                 throw new IllegalArgumentException(
                     "Error: La categoria '"+ parent.getName() +

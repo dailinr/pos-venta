@@ -86,7 +86,7 @@ public class GlobalExceptionHandler {
             httpStatus, 
             request.getRequestURL().toString(), 
             request.getMethod(), 
-            "El recurso que intenta crear ya existe. Existe una restricción de unicidad que ha sido violada.",
+            rootCauseMessage,
             rootCauseMessage, // backendMessage
             timestamp, 
             null
