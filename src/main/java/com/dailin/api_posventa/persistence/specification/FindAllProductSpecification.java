@@ -10,7 +10,6 @@ import com.dailin.api_posventa.persistence.entity.Category;
 import com.dailin.api_posventa.persistence.entity.Product;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaBuilder.In;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
@@ -21,13 +20,11 @@ public class FindAllProductSpecification implements Specification<Product> {
     private Boolean available;
     private String categoryTitle;
     private String categoryType;
-    private List<Long> categoryIds;
 
-    public FindAllProductSpecification(Boolean available, String categoryTitle, String categoryType, List<Long> categoryIds) {
+    public FindAllProductSpecification(Boolean available, String categoryTitle, String categoryType) {
         this.available = available;
         this.categoryTitle = categoryTitle;
         this.categoryType = categoryType;
-        this.categoryIds = categoryIds;
     }
 
     @Override
@@ -44,16 +41,8 @@ public class FindAllProductSpecification implements Specification<Product> {
             predicates.add(availables);
         }
 
-        // filtrar por la lista de IDs de categoria
-        if(this.categoryIds != null && !this.categoryIds.isEmpty()) {
-            // crea una clausula 'IN' para la lista de IDs
-            In<Long> inClause = criteriaBuilder.in(categoryJoin.get("id"));
-            this.categoryIds.forEach(inClause::value);
-            predicates.add(inClause);
-        }
-
         // Filtrar productos por su categoria
-        if(StringUtils.hasText(this.categoryTitle) && (this.categoryIds == null || this.categoryIds.isEmpty())){
+        if(StringUtils.hasText(this.categoryTitle)){
           
             Predicate titleLike = criteriaBuilder.like(
                 criteriaBuilder.lower(categoryJoin.get("name")),

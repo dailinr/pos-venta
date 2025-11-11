@@ -64,7 +64,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<GetProduct> findAll(Boolean available, String categoryTitle, String categoryType, Pageable pageable) {
         
-        FindAllProductSpecification productSpecification = new FindAllProductSpecification(available, categoryTitle, categoryType, null);
+        FindAllProductSpecification productSpecification = new FindAllProductSpecification(available, categoryTitle, categoryType);
         Page<Product> entities = productCrudRepository.findAll(productSpecification, pageable); // obtenemos las entidades
         return entities.map(ProductMapper::toGetDto);
     }
@@ -141,10 +141,7 @@ public class ProductServiceImpl implements ProductService {
             return Page.empty(pageable);
         }
 
-        FindAllProductSpecification productSpecification = new FindAllProductSpecification(
-            null, null, null,
-            categoryIds
-        );
+        FindAllProductSpecification productSpecification = new FindAllProductSpecification(null, null, null);
 
         Page<GetProduct> getProducts = productCrudRepository.findAll(productSpecification, pageable) // obtenemos las entidades
             .map(ProductMapper::toGetDto); // despues obtenemos los getProducts

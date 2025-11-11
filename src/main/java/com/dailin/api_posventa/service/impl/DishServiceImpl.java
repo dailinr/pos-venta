@@ -36,7 +36,7 @@ public class DishServiceImpl implements DishService {
     @Override
     public Page<GetDish> findAll(Boolean available, String categoryTitle, Pageable pageable) {
 
-        FindAllDishSpecification dishSpecification = new FindAllDishSpecification(available, categoryTitle, null);
+        FindAllDishSpecification dishSpecification = new FindAllDishSpecification(available, categoryTitle);
         Page<Dish> entities = dishCrudRepository.findAll(dishSpecification, pageable); // obtenemos las entidades
         return entities.map(DishMapper::toGetDto); 
     }
@@ -116,11 +116,7 @@ public class DishServiceImpl implements DishService {
             return Page.empty(pageable);
         }
 
-        FindAllDishSpecification dishSpecification = new FindAllDishSpecification(
-            null, 
-            null,
-            categoryIds
-        );
+        FindAllDishSpecification dishSpecification = new FindAllDishSpecification(null, null);
 
         Page<GetDish> getDishes = dishCrudRepository.findAll(dishSpecification, pageable)
             .map(DishMapper::toGetDto);
