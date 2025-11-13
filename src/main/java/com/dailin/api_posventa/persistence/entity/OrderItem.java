@@ -3,6 +3,7 @@ package com.dailin.api_posventa.persistence.entity;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Check;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,6 +14,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 @Entity
+@Check(
+    constraints = "dish_id IS NOT NULL OR product_id IS NOT NULL", // lógica SQL
+    name = "CK_ITEM_ORDEN_DISH_PRODUCT_NOT_BOTH_NULL" // Nombre de la restricción
+)
 public class OrderItem {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
