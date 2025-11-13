@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
 public record SaveDish(
@@ -23,6 +25,8 @@ public record SaveDish(
     String name,
 
     @JsonProperty(value = "category_id")
+    @NotNull(message = "{generic.notnull}")
+    @Positive(message = "La category_id debería ser un número positivo")
     Long categoryId
 
 ) implements Serializable { }

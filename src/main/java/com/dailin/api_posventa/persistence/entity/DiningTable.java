@@ -12,8 +12,16 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
+@Table(
+    uniqueConstraints = @UniqueConstraint(
+        name = "UQ_DINING_TABLE", // Nombre de la restricción en la DB
+        columnNames = { "number", "service_type" }
+    )
+)
 public class DiningTable {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +32,7 @@ public class DiningTable {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private TableState state;
+    private TableState state = TableState.LIBRE;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

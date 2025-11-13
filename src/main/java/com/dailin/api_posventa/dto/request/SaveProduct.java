@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
@@ -26,7 +25,6 @@ public record SaveProduct(
     @NotBlank(message = "{generic.notblank}")
     String name, 
 
-    @NotNull
     @JsonProperty(value = "measure_unit")
     MeasureUnit measureUnit,
 
