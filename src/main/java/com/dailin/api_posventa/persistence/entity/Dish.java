@@ -37,15 +37,23 @@ public class Dish {
     @Column(nullable = false)
     private String name;
 
-    // @Column(name = "category_id")
-    // private Long categoryId;
-
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false) // Mapea a la columna FK 'category_id' en la tabla 'Dish'
     private Category category; 
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "dish")
     private List<RecipeItem> RecipeItems;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "dish")
+    private List<OrderItem> OrderItems;
+
+    public List<OrderItem> getOrderItems() {
+        return OrderItems;
+    }
+
+    public void setOrderItems(List<OrderItem> orderItems) {
+        OrderItems = orderItems;
+    }
 
     public Category getCategory() {
         return category;

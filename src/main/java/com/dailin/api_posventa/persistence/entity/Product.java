@@ -47,15 +47,31 @@ public class Product {
 
     private boolean available = true;
 
-    // @Column(name = "category_id", nullable = false)
-    // private Long categoryId;
-
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "product")
     private List<RecipeItem> RecipeItems;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "product")
+    private List<OrderItem> OrderItems;
+
+    public List<RecipeItem> getRecipeItems() {
+        return RecipeItems;
+    }
+
+    public void setRecipeItems(List<RecipeItem> recipeItems) {
+        RecipeItems = recipeItems;
+    }
+
+    public List<OrderItem> getOrderItems() {
+        return OrderItems;
+    }
+
+    public void setOrderItems(List<OrderItem> orderItems) {
+        OrderItems = orderItems;
+    }
 
     public Long getId() {
         return id;
