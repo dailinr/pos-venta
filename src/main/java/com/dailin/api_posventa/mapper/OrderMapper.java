@@ -14,18 +14,32 @@ public class OrderMapper {
 
         if(entity == null) return null;
 
+        GetOrder.GetTable table = entity.getTable() != null
+            ? toGetTableOrderDto(entity.getTable()) : null;
+
         return new GetOrder(
             entity.getId(), 
             entity.getState().toString(), // Convertir Enum a String (si tu DTO es String)
             entity.getTotal(), 
             entity.getCreatedAt(), 
-            entity.getTable().getId(), 
+            table,
             
             // Mapear la lista de entidades OrderItem a DTOs GetOrderItem
             entity.getOrderItems().stream()
                 .map(OrderItemMapper::toGetDto)
                 .collect(Collectors.toList())
         );
+    }
+
+    public static GetOrder.GetTable toGetTableOrderDto(DiningTable entity){
+        if(entity == null) return null;
+
+        return new GetOrder.GetTable(
+            entity.getId(), 
+            entity.getNumber(), 
+            entity.getServiceType()
+        );
+
     }
 
     // --- Mapeo de DTO de Solicitud a Entidad (POST) ---

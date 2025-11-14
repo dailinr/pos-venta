@@ -35,8 +35,7 @@ public class OrderItemMapper {
 
         return new GetOrderItem.GetProduct(
             entity.getId(), 
-            entity.getName(), 
-            entity.getPrice()
+            entity.getName()
         );
     }
 
@@ -45,8 +44,7 @@ public class OrderItemMapper {
 
         return new GetOrderItem.GetDish(
             entity.getId(), 
-            entity.getName(), 
-            entity.getPrice()
+            entity.getName()
         );
     }
 

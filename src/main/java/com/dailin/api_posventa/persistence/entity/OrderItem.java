@@ -32,7 +32,7 @@ public class OrderItem {
     private Dish dish;
 
     @ManyToOne
-    @JoinColumn(name = "order_id")
+    @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
     @Column(nullable = false)

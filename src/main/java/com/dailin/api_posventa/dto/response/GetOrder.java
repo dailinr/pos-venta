@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.dailin.api_posventa.utils.ServiceType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record GetOrder(
@@ -15,12 +16,18 @@ public record GetOrder(
     LocalDateTime createdAt,
     
     // Información de la Mesa
-    @JsonProperty(value = "table_id")
-    Long tableId, // Un DTO simple para la mesa
-
-    // String table_name;
+    GetTable table,
     
     // La lista de todos los ítems de la orden
+    @JsonProperty(value = "order_items")
     List<GetOrderItem> orderItems 
 
-) implements Serializable { }
+) implements Serializable {
+
+    public static record GetTable(
+        Long id,
+        int number,
+        @JsonProperty(value = "service_type")
+        ServiceType serviceType
+    ) implements Serializable { }
+}

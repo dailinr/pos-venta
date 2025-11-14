@@ -1,12 +1,14 @@
 package com.dailin.api_posventa.persistence.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.dailin.api_posventa.utils.OrderState;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -38,8 +40,12 @@ public class Order {
     @Column(nullable = false)
     private double total;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "order")
-    private List<OrderItem> OrderItems;
+    @OneToMany(
+        fetch = FetchType.LAZY,mappedBy = "order",
+        cascade = CascadeType.ALL, // Asegura que si guardas la Order, se guarden sus items
+        orphanRemoval = true // si se elimina un item de la lista, se borra de la DB
+    )
+    private List<OrderItem> orderItems = new ArrayList<>();
 
     @OneToOne
     @JoinColumn(name = "table_id", nullable = false)
@@ -51,6 +57,12 @@ public class Order {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    // Método de ayuda para sincronizar la relación bidireccional
+    public void addOrderItem(OrderItem item) {
+        orderItems.add(item);
+        item.setOrder(this);
     }
 
     public OrderState getState() {
@@ -78,11 +90,11 @@ public class Order {
     }
 
     public List<OrderItem> getOrderItems() {
-        return OrderItems;
+        return orderItems;
     }
 
     public void setOrderItems(List<OrderItem> orderItems) {
-        OrderItems = orderItems;
+        this.orderItems = orderItems;
     }
 
     public DiningTable getTable() {

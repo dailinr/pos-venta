@@ -25,13 +25,11 @@ public record GetOrderItem(
 
     public static record GetProduct(
         Long id,
-        String name,
-        double price
+        String name
     ) implements Serializable {}
 
     public static record GetDish (
         Long id,
-        String name,
-        double price
+        String name
     ) implements Serializable { }
 }

@@ -92,12 +92,6 @@ public class OrderServiceImpl implements OrderService {
             .map(itemDto -> this.processOrderItem(itemDto, savedOrder))
             .collect(Collectors.toList());
 
-        System.out.println("Lista de items de la order ");
-        for (OrderItem orderItem : orderItems) {
-            System.out.println("\n"+ orderItem);
-        }
-             
-
         // 4. Asignar los items a la orden
         savedOrder.setOrderItems(orderItems);
 
