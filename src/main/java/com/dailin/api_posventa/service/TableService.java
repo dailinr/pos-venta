@@ -15,6 +15,8 @@ public interface TableService {
 
     DiningTable findOneEntityById(Long id);
 
+    DiningTable save(DiningTable entity);
+
     GetTable createOne(SaveTable saveDto);
 
     GetTable updatedById(Long id, SaveTable saveDto);

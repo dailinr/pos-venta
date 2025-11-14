@@ -68,4 +68,11 @@ public class TableServiceImpl implements TableService {
 
         return TableMapper.toGetDto(tableCrudRepository.save(oldTable));
     }
+
+    @Override
+    public DiningTable save(DiningTable entity) {
+        return tableCrudRepository.save(entity);
+    }
+
+    
 }

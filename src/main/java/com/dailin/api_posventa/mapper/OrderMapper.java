@@ -10,7 +10,7 @@ import com.dailin.api_posventa.persistence.entity.DiningTable; // Importa la ent
 public class OrderMapper {
     
     // --- Mapeo de Entidad a DTO de Respuesta (GET) ---
-    public GetOrder toGetDto(Order entity) {
+    public static GetOrder toGetDto(Order entity) {
 
         if(entity == null) return null;
 
