@@ -8,6 +8,7 @@ import org.springframework.util.StringUtils;
 
 import com.dailin.api_posventa.persistence.entity.Category;
 import com.dailin.api_posventa.persistence.entity.Product;
+import com.dailin.api_posventa.utils.CategoryType;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -19,9 +20,9 @@ public class FindAllProductSpecification implements Specification<Product> {
 
     private Boolean available;
     private String categoryTitle;
-    private String categoryType;
+    private CategoryType categoryType;
 
-    public FindAllProductSpecification(Boolean available, String categoryTitle, String categoryType) {
+    public FindAllProductSpecification(Boolean available, String categoryTitle, CategoryType categoryType) {
         this.available = available;
         this.categoryTitle = categoryTitle;
         this.categoryType = categoryType;
@@ -53,14 +54,14 @@ public class FindAllProductSpecification implements Specification<Product> {
         }
 
         // Filtrar los productos según el type de su categoria 
-        if(StringUtils.hasText(categoryType)){
+        if(this.categoryType != null){
 
-            Predicate typeLike = criteriaBuilder.like(
-                criteriaBuilder.lower(categoryJoin.get("type")), 
-                "%" + this.categoryType.toLowerCase() + "%"
+            Predicate typeEqual = criteriaBuilder.equal(
+                categoryJoin.get("type"), 
+                this.categoryType
             );
 
-            predicates.add(typeLike);
+            predicates.add(typeEqual);
         }
 
         return criteriaBuilder.and(predicates.toArray(new Predicate[0]));

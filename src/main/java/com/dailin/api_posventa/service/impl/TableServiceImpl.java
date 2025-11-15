@@ -12,7 +12,10 @@ import com.dailin.api_posventa.exception.ObjectNotFoundException;
 import com.dailin.api_posventa.mapper.TableMapper;
 import com.dailin.api_posventa.persistence.entity.DiningTable;
 import com.dailin.api_posventa.persistence.repository.TableCrudRepository;
+import com.dailin.api_posventa.persistence.specification.FindAllTableSpecification;
 import com.dailin.api_posventa.service.TableService;
+import com.dailin.api_posventa.utils.ServiceType;
+import com.dailin.api_posventa.utils.TableState;
 
 @Transactional
 @Service
@@ -41,9 +44,11 @@ public class TableServiceImpl implements TableService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<GetTable> findAll(Pageable pageable) {
-        
-        Page<DiningTable> entities = tableCrudRepository.findAll(pageable);
+    public Page<GetTable> findAll(
+        ServiceType serviceType, TableState state, Pageable pageable
+    ) {
+        FindAllTableSpecification specification = new FindAllTableSpecification(serviceType, state);
+        Page<DiningTable> entities = tableCrudRepository.findAll(specification, pageable);
         return entities.map(TableMapper::toGetDto);
     }
 

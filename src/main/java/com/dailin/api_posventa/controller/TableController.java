@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dailin.api_posventa.dto.request.SaveTable;
@@ -20,6 +21,8 @@ import com.dailin.api_posventa.dto.response.GetOrder;
 import com.dailin.api_posventa.dto.response.GetTable;
 import com.dailin.api_posventa.service.OrderService;
 import com.dailin.api_posventa.service.TableService;
+import com.dailin.api_posventa.utils.ServiceType;
+import com.dailin.api_posventa.utils.TableState;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -35,8 +38,12 @@ public class TableController {
     private OrderService orderService;
 
     @GetMapping
-    public ResponseEntity<Page<GetTable>> findAll(Pageable pageable) {
-        Page<GetTable> tables = tableService.findAll(pageable);
+    public ResponseEntity<Page<GetTable>> findAll(
+        @RequestParam(required = false) ServiceType serviceType, 
+        @RequestParam(required = false) TableState state,
+        Pageable pageable
+    ) {
+        Page<GetTable> tables = tableService.findAll(serviceType, state, pageable);
         return ResponseEntity.ok(tables);
     }
 
