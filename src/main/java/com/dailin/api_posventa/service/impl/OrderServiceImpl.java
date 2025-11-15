@@ -22,6 +22,7 @@ import com.dailin.api_posventa.persistence.entity.Order;
 import com.dailin.api_posventa.persistence.entity.OrderItem;
 import com.dailin.api_posventa.persistence.entity.Product;
 import com.dailin.api_posventa.persistence.repository.OrderCrudRepository;
+import com.dailin.api_posventa.persistence.specification.FindAllOrderSpecification;
 import com.dailin.api_posventa.service.DishService;
 import com.dailin.api_posventa.service.OrderService;
 import com.dailin.api_posventa.service.ProductService;
@@ -47,8 +48,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<GetOrder> findAll(Pageable pageable) {
-        Page<Order> entities = orderCrudRepository.findAll(pageable);
+    public Page<GetOrder> findAll(OrderState state, String date, Pageable pageable) {
+
+        FindAllOrderSpecification specification = new FindAllOrderSpecification(state, date);
+        Page<Order> entities = orderCrudRepository.findAll(specification, pageable);
         return entities.map(OrderMapper::toGetDto);
     }
 

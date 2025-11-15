@@ -7,10 +7,11 @@ import com.dailin.api_posventa.dto.request.SaveProduct;
 import com.dailin.api_posventa.dto.response.GetItem;
 import com.dailin.api_posventa.dto.response.GetProduct;
 import com.dailin.api_posventa.persistence.entity.Product;
+import com.dailin.api_posventa.utils.CategoryType;
 
 public interface ProductService {
 
-    Page<GetProduct> findAll(Boolean available, String categoryTitle, String categoryType, Pageable pageable);
+    Page<GetProduct> findAll(Boolean available, String categoryTitle, CategoryType categoryType, Pageable pageable);
 
     Page<GetItem> findAllByRootCategory(Long rootCategoryId, Pageable pageable);
 

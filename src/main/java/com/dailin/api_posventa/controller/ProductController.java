@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.dailin.api_posventa.dto.request.SaveProduct;
 import com.dailin.api_posventa.dto.response.GetProduct;
 import com.dailin.api_posventa.service.ProductService;
+import com.dailin.api_posventa.utils.CategoryType;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -33,7 +34,7 @@ public class ProductController {
     public ResponseEntity<Page<GetProduct>> findAll(
         @RequestParam(required = false) Boolean available, 
         @RequestParam(required = false) String categoryTitle,
-        @RequestParam(required = false) String categoryType,
+        @RequestParam(required = false) CategoryType categoryType,
         Pageable pageable
     ) {
         Page<GetProduct> products = productService.findAll(

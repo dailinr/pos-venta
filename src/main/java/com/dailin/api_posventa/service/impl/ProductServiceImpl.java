@@ -20,6 +20,7 @@ import com.dailin.api_posventa.persistence.repository.ProductCrudRepository;
 import com.dailin.api_posventa.persistence.specification.FindAllProductSpecification;
 import com.dailin.api_posventa.service.CategoryService;
 import com.dailin.api_posventa.service.ProductService;
+import com.dailin.api_posventa.utils.CategoryType;
 
 @Transactional
 @Service
@@ -62,7 +63,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Transactional(readOnly = true)
     @Override
-    public Page<GetProduct> findAll(Boolean available, String categoryTitle, String categoryType, Pageable pageable) {
+    public Page<GetProduct> findAll(Boolean available, String categoryTitle, CategoryType categoryType, Pageable pageable) {
         
         FindAllProductSpecification productSpecification = new FindAllProductSpecification(available, categoryTitle, categoryType);
         Page<Product> entities = productCrudRepository.findAll(productSpecification, pageable); // obtenemos las entidades

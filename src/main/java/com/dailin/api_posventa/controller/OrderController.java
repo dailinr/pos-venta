@@ -13,11 +13,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dailin.api_posventa.dto.request.SaveOrder;
 import com.dailin.api_posventa.dto.response.GetOrder;
 import com.dailin.api_posventa.service.OrderService;
+import com.dailin.api_posventa.utils.OrderState;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -30,8 +32,12 @@ public class OrderController {
     private OrderService orderService;
 
     @GetMapping
-    public ResponseEntity<Page<GetOrder>> findAll(Pageable pageable) {
-        Page<GetOrder> orders = orderService.findAll(pageable);
+    public ResponseEntity<Page<GetOrder>> findAll(
+        @RequestParam(required = false) OrderState state,
+        @RequestParam(required = false) String date,
+        Pageable pageable
+    ) {
+        Page<GetOrder> orders = orderService.findAll(state, date, pageable);
         return ResponseEntity.ok(orders);
     }
 
