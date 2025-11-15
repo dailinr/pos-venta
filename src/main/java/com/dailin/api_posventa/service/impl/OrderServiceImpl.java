@@ -1,5 +1,6 @@
 package com.dailin.api_posventa.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -110,8 +111,36 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public GetOrder updatedOneById(SaveOrder saveDto, Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updatedOneById'");
+        
+        // 1. Encontrar la Orden existente 
+        Order oldOrder = this.findOneEntityById(id);
+
+        // 2. Manejar la reasignacion de la Mesa (si es diferente)
+        if (saveDto.tableId() != null && 
+            !saveDto.tableId().equals(oldOrder.getTable().getId())
+        ){
+            // manejo de estados de ambas mesas
+            this.handleTableReassignment(oldOrder, saveDto.tableId());
+
+            // actualizamos el id_table en la entidad oldOrder
+            DiningTable newTable = tableService.findOneEntityById(saveDto.tableId());
+            OrderMapper.updateEntity(oldOrder, newTable);
+        }
+
+        // 3. Sincronizar los OrderItems (al Agregar, Actualizar o Eliminar)
+        this.synchronizeOrderItems(oldOrder, saveDto.orderItems());
+
+        // recalcular total 
+        double finalTotal = oldOrder.getOrderItems().stream()
+            .mapToDouble(OrderItem::getSubtotal)
+            .sum();
+        
+        oldOrder.setTotal(finalTotal);
+
+        // Persistir la Orden (por CascadeType.ALL)
+        Order updatedOrder = orderCrudRepository.save(oldOrder);
+
+        return OrderMapper.toGetDto(updatedOrder); // dto de respuesta
     }
 
     @Override
@@ -163,5 +192,93 @@ public class OrderServiceImpl implements OrderService {
         // en Order tiene CascadeType.ALL, pero el mapeo bidireccional es vital.
         
         return orderItem;
+    }
+
+    // logica para manejar el cambio de mesa
+    private void handleTableReassignment(Order oldOrder, Long newTableId) {
+        
+        DiningTable oldTable = oldOrder.getTable();
+
+        // la nueva mesa debe estar libre
+        DiningTable newTable = tableService.findOneEntityById(newTableId);
+        if(!newTable.getState().equals(TableState.LIBRE)){ 
+            throw new RuntimeException(
+                "La mesa "+ newTable.getNumber() +" no se encuentra disponible."
+            );
+        }
+
+        // liberar la mesa anterior
+        oldTable.setState(TableState.LIBRE);
+        tableService.save(oldTable); // persistimos
+
+        // ocupar la nueva mesa de destino
+        newTable.setState(TableState.OCUPADA);
+        tableService.save(newTable); // persistimos
+    }
+
+    // Compara los items existentes con los items recibidos en DTO para sincronizar la lista
+    private void synchronizeOrderItems(Order order, List<SaveOrderItem> newItemsDto) {
+    
+        // Usa un mapa para fácil acceso a los ítems existentes por sus IDs de Producto/Plato. La clave es una combinación de (dishId, productId)
+        
+        List<OrderItem> itemsToRemove = new ArrayList<>();
+        
+        // 1. Identificar ítems para ELIMINAR y/o ACTUALIZAR
+        order.getOrderItems().forEach(existingItem -> {
+            // La clave de un OrderItem es la combinación de IDs de Dish y Product
+            Long existingDishId = existingItem.getDish() != null ? existingItem.getDish().getId() : null; // si existe un plato en la order antigua
+            Long existingProductId = existingItem.getProduct() != null ? existingItem.getProduct().getId() : null; // si existe un plato en la order antigua
+            
+            // Buscar el DTO correspondiente en la nueva lista
+            SaveOrderItem matchingDto = newItemsDto.stream()
+                .filter(dto -> 
+                    java.util.Objects.equals(dto.dishId(), existingDishId) && // si de los nuevos datos hay un plato igual en la antigua order
+                    java.util.Objects.equals(dto.productId(), existingProductId) // si de los nuevos datos hay un producto igual en la antigua order
+                )   // basicamente: si hay una order igual a la que intentas ingresar nueva
+                .findFirst()
+                .orElse(null);
+                
+            if (matchingDto == null) {
+                // Si el ítem existente NO está en el DTO, marcar para eliminación
+                itemsToRemove.add(existingItem); // cuando el cliente desea eliminar un item de la order (?)
+            } else {
+                // Si el ítem existente SÍ está en el DTO, actualizar la cantidad
+                OrderItemMapper.updateEntity(matchingDto, existingItem); 
+                // Recalcular precio/subtotal después de actualizar la cantidad
+                recalculateOrderItem(existingItem);
+            }
+        });
+
+        // Remover los ítems marcados. 'orphanRemoval=true' se encarga de borrarlos de la DB.
+        order.getOrderItems().removeAll(itemsToRemove);
+
+        // 2. Identificar ítems para AGREGAR
+        newItemsDto.forEach(dto -> {
+            // Buscar si este nuevo DTO corresponde a un ítem que ya existe (actualizado en I)
+            Long newDishId = dto.dishId();
+            Long newProductId = dto.productId();
+            
+            boolean alreadyExists = order.getOrderItems().stream()
+                .anyMatch(item -> 
+                    java.util.Objects.equals(item.getDish() != null ? item.getDish().getId() : null, newDishId) &&
+                    java.util.Objects.equals(item.getProduct() != null ? item.getProduct().getId() : null, newProductId)
+                );
+
+            if (!alreadyExists) {
+                // Si el DTO no coincide con ningún ítem existente, AGREGAR como nuevo
+                OrderItem newItem = this.processOrderItem(dto, order); // Reutiliza la lógica de creación
+                order.getOrderItems().add(newItem); // Añadir a la colección (JPA guardará por cascada)
+            }
+        });
+    }
+
+    /**
+     * Recalcula el subtotal del ítem de orden después de una actualización de cantidad.
+     */
+    private void recalculateOrderItem(OrderItem item) {
+        // Si la cantidad se actualizó, recalcular el subtotal
+        double subtotal = item.getUnitPrice() * item.getQuantity();
+        item.setSubtotal(subtotal);
+        // Nota: El precio unitario (unitPrice) NO debería cambiar en una simple actualización.
     }
 }

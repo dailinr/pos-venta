@@ -15,8 +15,14 @@ import jakarta.persistence.ManyToOne;
 
 @Entity
 @Check(
-    constraints = "dish_id IS NOT NULL OR product_id IS NOT NULL", // lógica SQL
-    name = "CK_ITEM_ORDEN_DISH_PRODUCT_NOT_BOTH_NULL" // Nombre de la restricción
+    /* logica XOR
+        1 + 0 = 1
+        0 + 1 = 1
+        1 + 1 = 2
+        0 + 0 = 0
+     */
+    constraints = "(CASE WHEN dish_id IS NOT NULL THEN 1 ELSE 0 END + CASE WHEN product_id IS NOT NULL THEN 1 ELSE 0 END) = 1", 
+    name = "CK_ITEM_ORDEN_DISH_PRODUCT_XOR_NULL"
 )
 public class OrderItem {
 
@@ -112,6 +118,5 @@ public class OrderItem {
         this.createdAt = createdAt;
     }
 
-   
 
 }
