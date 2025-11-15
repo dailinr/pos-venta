@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dailin.api_posventa.dto.request.SaveTable;
+import com.dailin.api_posventa.dto.response.GetOrder;
 import com.dailin.api_posventa.dto.response.GetTable;
+import com.dailin.api_posventa.service.OrderService;
 import com.dailin.api_posventa.service.TableService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,6 +31,9 @@ public class TableController {
     @Autowired
     private TableService tableService;
 
+    @Autowired
+    private OrderService orderService;
+
     @GetMapping
     public ResponseEntity<Page<GetTable>> findAll(Pageable pageable) {
         Page<GetTable> tables = tableService.findAll(pageable);
@@ -38,6 +43,14 @@ public class TableController {
     @GetMapping(value = "/{id}")
     public ResponseEntity<GetTable> findOneById(@PathVariable Long id){
         return ResponseEntity.ok(tableService.findOneById(id));
+    }
+
+    @GetMapping("/{id}/order-details")
+    public ResponseEntity<GetOrder> findOrderByTableId(
+        @PathVariable @Valid Long id
+    ){
+        GetOrder order = orderService.findOrderByTableId(id);
+        return ResponseEntity.ok(order);
     }
 
     @PostMapping

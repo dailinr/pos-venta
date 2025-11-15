@@ -19,7 +19,7 @@ public class OrderMapper {
 
         return new GetOrder(
             entity.getId(), 
-            entity.getState().toString(), // Convertir Enum a String (si tu DTO es String)
+            entity.getState(), 
             entity.getTotal(), 
             entity.getCreatedAt(), 
             table,

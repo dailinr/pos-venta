@@ -4,12 +4,13 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.dailin.api_posventa.utils.OrderState;
 import com.dailin.api_posventa.utils.ServiceType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record GetOrder(
     Long id,
-    String state, // El estado de la orden (ej: "EN_PREPARACION")
+    OrderState state, // El estado de la orden (ej: "EN_PREPARACION")
     double total,
 
     @JsonProperty(value = "created_at")

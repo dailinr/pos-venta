@@ -15,4 +15,4 @@ public record GetTable(
     @JsonProperty(value = "service_type") 
     ServiceType serviceType
 
-) implements Serializable {}
+) implements Serializable { }

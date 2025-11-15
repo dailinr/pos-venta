@@ -15,6 +15,8 @@ public interface OrderService {
 
    Order findOneEntityById(Long id);
 
+   GetOrder findOrderByTableId(Long tableId);
+
    GetOrder createOne(SaveOrder saveDto);
 
    GetOrder updatedOneById(SaveOrder saveDto, Long id);

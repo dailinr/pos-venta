@@ -65,6 +65,14 @@ public class OrderServiceImpl implements OrderService {
             .orElseThrow(() -> new ObjectNotFoundException("order "+ Long.toString(id)));
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public GetOrder findOrderByTableId(Long tableId){
+        tableService.findOneEntityById(tableId); // validar que la mesa exista
+
+        return OrderMapper.toGetDto(orderCrudRepository.findByTableId(tableId));
+    }
+
     @Override
     public GetOrder createOne(SaveOrder dto) {
         
