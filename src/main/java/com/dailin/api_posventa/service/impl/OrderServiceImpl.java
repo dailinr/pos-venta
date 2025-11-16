@@ -157,12 +157,16 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void deleteOneById(Long id) {
         
-        if(orderCrudRepository.existsById(id)){
-            orderCrudRepository.deleteById(id);
-            return;
-        }
+        // Buscar la mesa asociada a esta order
+        Order oldOrder = this.findOneEntityById(id); // valida que la order exista
+        DiningTable oldTable = oldOrder.getTable();
+        
+        // liberarla y persistir la entidad
+        oldTable.setState(TableState.LIBRE);
+        tableService.save(oldTable);
 
-        throw new ObjectNotFoundException("order: "+ Long.toString(id));
+        // eliminar order y sus items de la base de datos
+        orderCrudRepository.deleteById(id);
     }
 
     // --- Lógica Auxiliar para Ítem de Orden ---
