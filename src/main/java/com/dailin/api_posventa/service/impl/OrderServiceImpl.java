@@ -2,6 +2,7 @@ package com.dailin.api_posventa.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -210,8 +211,13 @@ public class OrderServiceImpl implements OrderService {
         if (hasProduct) {
             Product product = productService.findOneEntityById(itemDto.productId()); // Asume findOneEntityById existe
 
+            String errorMessage = String.format(
+                "Stock insuficiente. Solo hay %d %s disponibles del producto '%s'.",
+                product.getQuantityAvailable(), product.getMeasureUnit(), product.getName()
+            );
+
             // procesar y disminuir el stock del producto
-            productService.decreaseStock(product, itemDto.quantity());
+            productService.decreaseStock(product, itemDto.quantity(), errorMessage);
 
             orderItem.setProduct(product); // el item de la order será del tipo Product
             price = product.getPrice(); // guardamos el precio
@@ -273,9 +279,20 @@ public class OrderServiceImpl implements OrderService {
             if (matchingDto == null) {
                 // Si el ítem existente NO está en el DTO, marcar para eliminación
                 itemsToRemove.add(existingItem); // cuando el cliente desea eliminar un item de la order (?)
+
+                // reponer el stock (si el item es eliminado)
+                this.revertStock(existingItem);
             } else {
                 // Si el ítem existente SÍ está en el DTO, actualizar la cantidad
+                int oldQuantity = existingItem.getQuantity(); // guardamos la cantidad antigua
+
                 OrderItemMapper.updateEntity(matchingDto, existingItem); 
+
+                int newQuantity = existingItem.getQuantity(); // obtenemos la nueva antidad
+
+                // Ajustar Stock (si la cantidad cambia)
+                this.adjustStockForUpdate(existingItem, oldQuantity, newQuantity);
+
                 // Recalcular precio/subtotal después de actualizar la cantidad
                 recalculateOrderItem(existingItem);
             }
@@ -285,23 +302,99 @@ public class OrderServiceImpl implements OrderService {
         order.getOrderItems().removeAll(itemsToRemove);
 
         // 2. Identificar ítems para AGREGAR
-        newItemsDto.forEach(dto -> {
-            // Buscar si este nuevo DTO corresponde a un ítem que ya existe (actualizado en I)
-            Long newDishId = dto.dishId();
-            Long newProductId = dto.productId();
-            
-            boolean alreadyExists = order.getOrderItems().stream()
-                .anyMatch(item -> 
-                    java.util.Objects.equals(item.getDish() != null ? item.getDish().getId() : null, newDishId) &&
-                    java.util.Objects.equals(item.getProduct() != null ? item.getProduct().getId() : null, newProductId)
-                );
+        // Crear un Set con las claves únicas de los ítems que YA existen/fueron actualizados
+        Set<String> existingKeys = order.getOrderItems().stream()
+            .map(item -> 
+                (item.getDish() != null ? item.getDish().getId() : "0") + 
+                "_" + 
+                (item.getProduct() != null ? item.getProduct().getId() : "0")
+            ).collect(Collectors.toSet());
 
-            if (!alreadyExists) {
+        newItemsDto.forEach(dto -> {
+            String newKey = (dto.dishId() != null ? dto.dishId() : "0") + "_" + (dto.productId() != null ? dto.productId() : "0");
+            
+            // Verificación rápida O(1)
+            if (!existingKeys.contains(newKey)) {
                 // Si el DTO no coincide con ningún ítem existente, AGREGAR como nuevo
-                OrderItem newItem = this.processOrderItem(dto, order); // Reutiliza la lógica de creación
-                order.getOrderItems().add(newItem); // Añadir a la colección (JPA guardará por cascada)
+                OrderItem newItem = this.processOrderItem(dto, order); 
+                order.getOrderItems().add(newItem); 
             }
         });
+    }
+
+    // Este método maneja el aumento o disminución de la cantidad de un ítem existente.
+    private void adjustStockForUpdate(OrderItem item, int oldQuantity, int newQuantity) {
+        
+        if(oldQuantity == newQuantity){
+            return; // no se realiza ningún cambio
+        }
+
+        int stockChange = newQuantity - oldQuantity;
+
+        // Si la cantidad es positiva, se necesita más stock (disminución)
+        if (stockChange > 0) {
+            int quantityToDecrease = stockChange;
+            
+            if (item.getProduct() != null) {
+                // Es un Producto directo
+                Product product = productService.findOneEntityById(item.getProduct().getId());
+
+                String errorMessage = String.format(
+                    "Stock insuficiente. Solo hay %d %s disponibles del producto '%s'.",
+                    product.getQuantityAvailable(), product.getMeasureUnit(), product.getName()
+                );
+                productService.decreaseStock(product, quantityToDecrease, errorMessage);
+                
+            } else if (item.getDish() != null) {
+                // Es un Plato
+                Dish dish = item.getDish();
+                List<GetDish.GetRecipeItem> ingredients = recipeItemService.findAllByDishId(dish.getId(), Pageable.unpaged()).getContent();
+                
+                // Reutiliza la lógica de plato, pero solo con la cantidad de CAMBIO
+                this.processDishStock(ingredients, quantityToDecrease, dish.getName());
+            }
+            
+        } 
+        // Si la cantidad es negativa, se libera stock (reversión)
+        else if (stockChange < 0) {
+            int quantityToIncrease = Math.abs(stockChange); 
+            this.increaseStock(item, quantityToIncrease); // Creamos un nuevo método para la reposición
+        }
+
+    }
+
+    /**
+     * Aumenta el stock cuando se elimina un item de la orden o se reduce su cantidad.
+     * @param item El OrderItem (existente) afectado.
+     * @param quantityToIncrease La cantidad de stock a reponer.
+     */
+    private void increaseStock(OrderItem item, int quantityToIncrease) {
+        if (item.getProduct() != null) {
+            // Es un Producto directo
+            Product product = productService.findOneEntityById(item.getProduct().getId());
+            product.setQuantityAvailable(product.getQuantityAvailable() + quantityToIncrease);
+            productService.save(product);
+            
+        } else if (item.getDish() != null) {
+            // Es un Plato: Reponer stock de los ingredientes
+            Dish dish = item.getDish();
+            List<GetDish.GetRecipeItem> ingredients = recipeItemService.findAllByDishId(dish.getId(), Pageable.unpaged()).getContent();
+
+            for(GetDish.GetRecipeItem ingredient : ingredients) {
+                int stockToIncrease = ingredient.quantity() * quantityToIncrease;
+                Product product = productService.findOneEntityById(ingredient.productId());
+                product.setQuantityAvailable(product.getQuantityAvailable() + stockToIncrease);
+                productService.save(product);
+            }
+        }
+    }
+
+    /**
+     * Llama a increaseStock para reponer completamente el stock de un ítem marcado para eliminación.
+     * @param item El OrderItem que está siendo eliminado.
+     */
+    private void revertStock(OrderItem item) {
+        this.increaseStock(item, item.getQuantity());
     }
 
     /**
@@ -333,21 +426,12 @@ public class OrderServiceImpl implements OrderService {
             // Obtener el producto como entidad
             Product product = productService.findOneEntityById(ingredient.productId());
 
-            int availableStock = product.getQuantityAvailable(); // cantidad disponible
+            String errorMessage = String.format(
+                "Stock insuficiente. Para el plato '%s' se requieren %d %s de '%s', pero solo hay %d %s disponibles.",
+                dishName, requiredStock, product.getMeasureUnit(), product.getName(), product.getQuantityAvailable(), product.getMeasureUnit()
+            );
 
-            // Validar que haya cantidad suficiente en el stock antes de disminuir
-            if (availableStock < requiredStock) {
-                throw new IllegalArgumentException(
-                    String.format(
-                        "Stock insuficiente. Para el plato '%s' se requieren %d %s de '%s', pero solo hay %d %s disponibles.",
-                        dishName, requiredStock, product.getMeasureUnit(), product.getName(), availableStock, product.getMeasureUnit()
-                    )
-                );
-            }
-
-            // disminuir el stock y persistir
-            product.setQuantityAvailable(availableStock - requiredStock);
-            productService.save(product);
+            productService.decreaseStock(product, requiredStock, errorMessage);
         }
     }
 }

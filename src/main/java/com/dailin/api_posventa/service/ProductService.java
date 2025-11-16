@@ -25,7 +25,7 @@ public interface ProductService {
 
     GetProduct createOne(SaveProduct saveDto);
 
-    void decreaseStock(Product product, int quantityRequest);
+    void decreaseStock(Product product, int quantityRequest, String errorMessage);
 
     void deleteOneById(Long id);
 

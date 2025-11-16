@@ -155,18 +155,15 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void decreaseStock(Product product, int quantityRequest) {
+    public void decreaseStock(Product product, int quantityRequest, String errorMessage) {
 
         int quantityAvailable = product.getQuantityAvailable();
 
-        // validar si la cantidad disponible es >= a la requerida por el cliente
+        // Validar que haya cantidad suficiente en el stock antes de disminuir
         if(quantityAvailable < quantityRequest){
-            throw new IllegalArgumentException(
-                "La cantidad disponible para el producto "+ product.getName()+
-                " es menor que la cantidad requerida."
-            );
+            throw new IllegalArgumentException(errorMessage);
         }
-        // disminuir la cantidad disponible en el stock y persistimos
+        // disminuir la cantidad disponible en el stock y persistir
         product.setQuantityAvailable(quantityAvailable - quantityRequest);
         this.save(product);
     }
