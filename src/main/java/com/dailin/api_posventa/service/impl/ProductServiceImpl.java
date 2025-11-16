@@ -33,6 +33,11 @@ public class ProductServiceImpl implements ProductService {
     private CategoryService categoryService;
 
     @Override
+    public Product save(Product entity) {
+        return productCrudRepository.save(entity);
+    }
+
+    @Override
     public GetProduct createOne(SaveProduct saveDto) {
         
         Product newProduct = ProductMapper.toEntity(saveDto); // convierte a entidad
@@ -147,5 +152,22 @@ public class ProductServiceImpl implements ProductService {
         Page<GetProduct> getProducts = productCrudRepository.findAll(productSpecification, pageable) // obtenemos las entidades
             .map(ProductMapper::toGetDto); // despues obtenemos los getProducts
         return getProducts.map(ItemMapper::toGetProductItemDto);
+    }
+
+    @Override
+    public void decreaseStock(Product product, int quantityRequest) {
+
+        int quantityAvailable = product.getQuantityAvailable();
+
+        // validar si la cantidad disponible es >= a la requerida por el cliente
+        if(quantityAvailable < quantityRequest){
+            throw new IllegalArgumentException(
+                "La cantidad disponible para el producto "+ product.getName()+
+                " es menor que la cantidad requerida."
+            );
+        }
+        // disminuir la cantidad disponible en el stock y persistimos
+        product.setQuantityAvailable(quantityAvailable - quantityRequest);
+        this.save(product);
     }
 }

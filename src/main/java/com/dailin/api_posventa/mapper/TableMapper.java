@@ -36,7 +36,7 @@ public class TableMapper {
         if(oldTable == null || saveDto == null) return;
 
         oldTable.setNumber(saveDto.number());
-        oldTable.setState(saveDto.state());
+        // oldTable.setState(saveDto.state());
         oldTable.setServiceType(saveDto.serviceType());
     }
 }

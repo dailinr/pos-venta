@@ -16,7 +16,6 @@ public record SaveCategory(
     CategoryType type, // Espera un string como "MENU" o "INVENTARIO"
 
     @JsonProperty(value = "price_enabled")
-    @NotBlank(message = "{generic.notblank}")
     boolean priceEnabled,
 
     @Positive(message = "parent_category_id debería ser un número positivo")

@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.dailin.api_posventa.dto.request.SaveOrder;
 import com.dailin.api_posventa.dto.request.SaveOrderItem;
+import com.dailin.api_posventa.dto.response.GetDish;
 import com.dailin.api_posventa.dto.response.GetOrder;
 import com.dailin.api_posventa.exception.ObjectNotFoundException;
 import com.dailin.api_posventa.mapper.OrderItemMapper;
@@ -26,6 +27,7 @@ import com.dailin.api_posventa.persistence.specification.FindAllOrderSpecificati
 import com.dailin.api_posventa.service.DishService;
 import com.dailin.api_posventa.service.OrderService;
 import com.dailin.api_posventa.service.ProductService;
+import com.dailin.api_posventa.service.RecipeItemService;
 import com.dailin.api_posventa.service.TableService;
 import com.dailin.api_posventa.utils.OrderState;
 import com.dailin.api_posventa.utils.TableState;
@@ -45,6 +47,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private DishService dishService;
+
+    @Autowired
+    private RecipeItemService recipeItemService;
 
     @Transactional(readOnly = true)
     @Override
@@ -188,19 +193,28 @@ public class OrderServiceImpl implements OrderService {
         double price = 0.0;
         
         // B. Asignar Plato (si existe) y obtener precio
-        if (itemDto.dishId() != null) {
+        if (hasDish) {
             Dish dish = dishService.findOneEntityById(itemDto.dishId()); // Asume findOneEntityById existe
+
+            // extraer el listado de ingredientes del plato
+            List<GetDish.GetRecipeItem> ingredients = recipeItemService.findAllByDishId(dish.getId(), Pageable.unpaged()).getContent();
+
+            // procesar y disminuir el stock de los ingredientes
+            this.processDishStock(ingredients, itemDto.quantity(), dish.getName());
+
             orderItem.setDish(dish);
             price = dish.getPrice();
         } 
         
         // C. Asignar Producto (si existe) y obtener precio
-        if (itemDto.productId() != null) {
+        if (hasProduct) {
             Product product = productService.findOneEntityById(itemDto.productId()); // Asume findOneEntityById existe
-            orderItem.setProduct(product);
-            
-            // Aquí asumimos que si hay ambos, es una combinación y se suma el precio.
-            price += product.getPrice(); 
+
+            // procesar y disminuir el stock del producto
+            productService.decreaseStock(product, itemDto.quantity());
+
+            orderItem.setProduct(product); // el item de la order será del tipo Product
+            price = product.getPrice(); // guardamos el precio
         }
 
         // D. Asignar propiedades calculadas y FK
@@ -208,9 +222,7 @@ public class OrderServiceImpl implements OrderService {
         orderItem.setSubtotal(price * itemDto.quantity());
         orderItem.setOrder(parentOrder);
         
-        // No es necesario guardar el OrderItem individualmente si la relación
-        // en Order tiene CascadeType.ALL, pero el mapeo bidireccional es vital.
-        
+        // los OrderItem se guardan automaticamenet ya que  Order tiene CascadeType.ALL
         return orderItem;
     }
 
@@ -300,5 +312,42 @@ public class OrderServiceImpl implements OrderService {
         double subtotal = item.getUnitPrice() * item.getQuantity();
         item.setSubtotal(subtotal);
         // Nota: El precio unitario (unitPrice) NO debería cambiar en una simple actualización.
+    }
+
+    /**
+     * Procesa la disminución de stock de los productos que componen un plato.
+     * @param ingredients Los ítems de la receta (productos/ingredientes)
+     * @param dishQuantity La cantidad de platos pedidos en la orden
+     * @param dishName Nombre del plato para mensajes de error
+     */
+    private void processDishStock(
+        List<GetDish.GetRecipeItem> ingredients,
+        int dishQuantity, String dishName
+    ){
+
+        for(GetDish.GetRecipeItem ingredient : ingredients) {
+
+            // cantida total requerida para ese ingrediente (Cantidad requerida por un plato) * (Cantidad de platos pedidos)
+            int requiredStock = ingredient.quantity() * dishQuantity;
+
+            // Obtener el producto como entidad
+            Product product = productService.findOneEntityById(ingredient.productId());
+
+            int availableStock = product.getQuantityAvailable(); // cantidad disponible
+
+            // Validar que haya cantidad suficiente en el stock antes de disminuir
+            if (availableStock < requiredStock) {
+                throw new IllegalArgumentException(
+                    String.format(
+                        "Stock insuficiente. Para el plato '%s' se requieren %d %s de '%s', pero solo hay %d %s disponibles.",
+                        dishName, requiredStock, product.getMeasureUnit(), product.getName(), availableStock, product.getMeasureUnit()
+                    )
+                );
+            }
+
+            // disminuir el stock y persistir
+            product.setQuantityAvailable(availableStock - requiredStock);
+            productService.save(product);
+        }
     }
 }

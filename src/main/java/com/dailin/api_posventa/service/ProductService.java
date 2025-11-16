@@ -21,7 +21,11 @@ public interface ProductService {
 
     GetProduct updtedOneById(Long id, SaveProduct saveDto);
 
+    Product save(Product entity);
+
     GetProduct createOne(SaveProduct saveDto);
+
+    void decreaseStock(Product product, int quantityRequest);
 
     void deleteOneById(Long id);
 

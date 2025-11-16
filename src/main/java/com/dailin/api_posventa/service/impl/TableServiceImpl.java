@@ -71,6 +71,10 @@ public class TableServiceImpl implements TableService {
         DiningTable oldTable = this.findOneEntityById(id);
         TableMapper.updateEntity(oldTable, saveDto);
 
+        if(saveDto.state() != null) {
+            oldTable.setState(saveDto.state());
+        }
+
         return TableMapper.toGetDto(tableCrudRepository.save(oldTable));
     }
 
