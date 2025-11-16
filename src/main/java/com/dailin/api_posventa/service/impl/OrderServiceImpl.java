@@ -175,9 +175,14 @@ public class OrderServiceImpl implements OrderService {
         // Usamos el DTO del mapper para obtener la estructura base del ítem
         OrderItem orderItem = OrderItemMapper.toEntity(itemDto);
 
-        // A. Validar la restricción CHECK (Al menos un ID debe estar presente)
-        if (itemDto.dishId() == null && itemDto.productId() == null) {
-            throw new RuntimeException("Un ítem debe tener asociado un Plato o un Producto.");
+        // Validar la restriccion XOR 
+        boolean hasDish = itemDto.dishId() != null;
+        boolean hasProduct = itemDto.productId() != null;
+
+        if(hasDish == hasProduct){ // si ambos son true (1+1=2) o ambos false (0+0=0)
+            throw new RuntimeException(
+                "Un ítem de una orden debe ser al menos un Plato o un Producto, pero no ambos."
+            );
         }
         
         double price = 0.0;

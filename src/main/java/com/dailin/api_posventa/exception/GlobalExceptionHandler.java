@@ -81,18 +81,56 @@ public class GlobalExceptionHandler {
         String rootCauseMessage = dataIntegrityViolationException.getRootCause() != null 
             ? dataIntegrityViolationException.getRootCause().getMessage() 
             : dataIntegrityViolationException.getMessage();
+
+        String clientMessage;
+
+        // Violacion de clave unica (UNIQUE INDEX / DUPLICATE ENTRY)
+        if(rootCauseMessage.contains("Duplicate entry") || rootCauseMessage.contains("UQ_")) {
+            
+            String fieldInfo = this.extractDuplicateKeyInfo(rootCauseMessage);
+
+            clientMessage = String.format(
+                "Ya existe un recurso con este identificador único (%s). Por favor, ingrese un valor diferente.",
+                fieldInfo
+            );
+        }
+        else {
+            clientMessage = "Error de integridad de datos. No se pudo completar la operación debido a una violación de restricción.";
+        }
          
         ApiError apiError = new ApiError(
             httpStatus, 
             request.getRequestURL().toString(), 
             request.getMethod(), 
-            rootCauseMessage,
-            rootCauseMessage, // backendMessage
+            clientMessage,
+            rootCauseMessage, // mensaje técnico original
             timestamp, 
             null
         );
 
         return ResponseEntity.status(httpStatus).body(apiError);
+    }
+
+    /**
+     * 
+     * @param rootCauseMessage
+     * @return extrae la información de la clave duplicada (ej: '4-PARA_LLEVAR')
+     * Busca la cadena entre 'Duplicate entry' y 'for key'
+     */
+    private String extractDuplicateKeyInfo(String rootCauseMessage) {
+        
+        // Patrón para MySQL: Duplicate entry 'VALUE' for key 'KEY_NAME'
+        String startMarker = "Duplicate entry '";
+        String endMarker = "' for key '";
+
+        // Encontrar las posiciones en el patron del mensaje
+        int start = rootCauseMessage.indexOf(startMarker);
+        int end = rootCauseMessage.indexOf(endMarker);
+
+        if(start != -1 && end != -1) {
+            return rootCauseMessage.substring(start + startMarker.length(), end);
+        }
+        return "El recurso";
     }
 
     private ResponseEntity<ApiError> handleHttpMessageNotReadableException(
